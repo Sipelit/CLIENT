@@ -4,8 +4,13 @@ import { Avatar, Card, Text, Searchbar, Surface, Divider } from "react-native-pa
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import TransactionCard from "../components/TransactionCard";
 import FAB from "../components/FAB";
+import { useQuery } from "@apollo/client";
+import { getTransactions } from "../apollo/transactionQuery";
 
 export function HomeScreen() {
+  const { data, error, loading, refetch } = useQuery(getTransactions)
+  console.log(data);
+  
   return (
     <>
       <View style={{ flex: 1, backgroundColor: "#145da0" }}>
