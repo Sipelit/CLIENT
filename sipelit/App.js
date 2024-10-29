@@ -4,7 +4,6 @@ import { HomeScreen } from "./screens/Homescreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { CreateTransactionScreen } from "./screens/CreateTransactionScreen";
-import AddPeopleScreen from "./screens/AddPeopleScreen";
 import { AssignPeopleScreen } from "./screens/AssignPeopleScreen";
 
 const Tab = createBottomTabNavigator();
@@ -15,7 +14,6 @@ export function BottomTab() {
     <Tab.Navigator>
       <Tab.Screen name="homescreen" component={HomeScreen} options={{ headerShown: false }} />
       <Tab.Screen name="transaction" component={CreateTransactionScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="addPeople" component={AddPeopleScreen} options={{ headerShown: false }} />
       <Tab.Screen name="AssignPeopleScreen" component={AssignPeopleScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
