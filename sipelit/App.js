@@ -7,6 +7,7 @@ import { CreateTransactionScreen } from "./screens/CreateTransactionScreen";
 import { AssignPeopleScreen } from "./screens/AssignPeopleScreen";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "./apollo/config";
+import { ReceiptScreen } from "./screens/ReceiptScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -27,6 +28,11 @@ export function BottomTab() {
       <Tab.Screen
         name="AssignPeopleScreen"
         component={AssignPeopleScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="ReceiptScreen"
+        component={ReceiptScreen}
         options={{ headerShown: false }}
       />
     </Tab.Navigator>
