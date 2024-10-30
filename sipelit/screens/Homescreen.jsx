@@ -29,7 +29,7 @@ export function HomeScreen() {
 
   useEffect(() => {
     calculateTotal();
-    refetch()
+    refetch();
   }, [data]);
 
   return (
@@ -161,9 +161,9 @@ export function HomeScreen() {
                 }}
               >
                 {Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-              }).format(total)}
+                  style: "currency",
+                  currency: "IDR",
+                }).format(total)}
               </Text>
             </View>
           </Card>
