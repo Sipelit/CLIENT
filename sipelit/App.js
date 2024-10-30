@@ -5,8 +5,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { CreateTransactionScreen } from "./screens/CreateTransactionScreen";
 import { AssignPeopleScreen } from "./screens/AssignPeopleScreen";
-import { client } from "./apollo/config";
 import { ApolloProvider } from "@apollo/client";
+import { client } from "./apollo/config";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Alert } from "react-native";
 import {
   Text,
   TextInput,
@@ -39,12 +39,12 @@ export function AssignPeopleScreen({ navigation }) {
   const [itemAssignments, setItemAssignments] = useState([]);
 
   const addPerson = () => {
-    if (newPersonName.trim()) {
+    if (newPersonName) {
       setPeople((prev) => [
         ...prev,
         {
           id: prev.length + 1,
-          name: newPersonName.trim(),
+          name: newPersonName,
         },
       ]);
       setNewPersonName("");
@@ -132,39 +132,37 @@ export function AssignPeopleScreen({ navigation }) {
   };
 
   const handleConfirmSplit = () => {
-    const userTransactions = people.map(person => ({
-      _id: person.id.toString(),
+    const userTransactions = people.map((person) => ({
       name: person.name,
       items: itemAssignments
-        .filter(assignment => assignment.personId === person.id)
+        .filter((assignment) => assignment.personId === person.id)
         .reduce((acc, curr) => {
-          const existing = acc.find(item => item.name === curr.itemName);
+          const existing = acc.find((item) => item.name === curr.itemName);
           if (existing) {
             existing.quantity += 1;
           } else {
             acc.push({
               name: curr.itemName,
               price: curr.price,
-              quantity: 1
+              quantity: 1,
             });
           }
           return acc;
         }, []),
       totalPrice: calculatePersonTotal(person.id),
       userId: person.id.toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
     }));
 
-    console.log('UserTransactions:', userTransactions);
-    
+    console.log("UserTransactions:", userTransactions);
+
     const totalAssignedQuantity = itemAssignments.length;
     const totalOriginalQuantity = transactionItems.items.reduce(
-      (sum, item) => sum + item.quantity, 0
+      (sum, item) => sum + item.quantity,
+      0
     );
-    
+
     if (totalAssignedQuantity < totalOriginalQuantity) {
-      console.log('Warning: Not all items have been assigned!');
+      Alert.alert("Warning: Not all items have been assigned!");
     }
   };
 
@@ -404,7 +402,7 @@ export function AssignPeopleScreen({ navigation }) {
                         icon="close"
                         size={20}
                         onPress={() => {
-                          const indicesToRemove = itemAssignments
+                          const remove = itemAssignments
                             .map((assignment, idx) =>
                               assignment.personId === person.id &&
                               assignment.itemName === item.name
@@ -413,9 +411,7 @@ export function AssignPeopleScreen({ navigation }) {
                             )
                             .filter((idx) => idx !== -1);
 
-                          indicesToRemove.forEach((idx) =>
-                            removeItemAssignment(idx)
-                          );
+                          remove.forEach((idx) => removeItemAssignment(idx));
                         }}
                       />
                     </Surface>

@@ -284,7 +284,12 @@ export function CreateTransactionScreen({ navigation }) {
                   <Text style={{ fontSize: 16, color: "#145da0" }}>
                     {item.name}
                   </Text>
-                  <Text style={{ color: "#6b7280" }}>Rp {item.totalPrice}</Text>
+                  <Text style={{ color: "#6b7280" }}>
+                    {Intl.NumberFormat("id-ID", {
+                      style: "currency",
+                      currency: "IDR",
+                    }).format(item.totalPrice)}
+                  </Text>
                 </View>
                 <IconButton
                   icon="close"

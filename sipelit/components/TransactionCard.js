@@ -18,28 +18,33 @@ export default function TransactionCard(props) {
     >
       <View
         style={{
-          backgroundColor: `${item.color}20`,
+          backgroundColor: `#10B98120`,
           padding: 12,
           borderRadius: 12,
           marginRight: 16,
         }}
       >
-        <Icon name={item.icon} size={24} color={item.color} />
+        <Icon name={"coffee"} size={24} color={"#10B981"} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={{ color: "#051d40", fontSize: 16, fontWeight: "500" }}>
-          {item.title}
+          {item.name}
         </Text>
-        <Text style={{ color: "#9CA3AF", fontSize: 14 }}>{item.date}</Text>
+        <Text style={{ color: "#9CA3AF", fontSize: 14 }}>
+          {item.createdAt.slice(0, 10)}
+        </Text>
       </View>
       <Text
         style={{
-          color: item.amount.includes("+") ? "#10B981" : "#EF4444",
+          color: "#10B981",
           fontSize: 16,
           fontWeight: "600",
         }}
       >
-        {item.amount}
+        {Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+        }).format(item.totalPrice)}
       </Text>
     </View>
   );

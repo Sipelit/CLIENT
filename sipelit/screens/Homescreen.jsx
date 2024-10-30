@@ -1,6 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, ScrollView, Image } from "react-native";
-import { Avatar, Card, Text, Searchbar, Surface, Divider } from "react-native-paper";
+import {
+  Avatar,
+  Card,
+  Text,
+  Searchbar,
+  Surface,
+  Divider,
+} from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import TransactionCard from "../components/TransactionCard";
 import FAB from "../components/FAB";
@@ -8,9 +15,23 @@ import { useQuery } from "@apollo/client";
 import { getTransactions } from "../apollo/transactionQuery";
 
 export function HomeScreen() {
-  const { data, error, loading, refetch } = useQuery(getTransactions)
-  console.log(data);
-  
+  const { data, error, loading, refetch } = useQuery(getTransactions);
+  const [total, setTotal] = useState(0);
+
+  const calculateTotal = () => {
+    let price = 0;
+    data?.getTransactions?.map((el) => {
+      price += el.totalPrice;
+    });
+
+    setTotal(price);
+  };
+
+  useEffect(() => {
+    calculateTotal();
+    refetch()
+  }, [data]);
+
   return (
     <>
       <View style={{ flex: 1, backgroundColor: "#145da0" }}>
@@ -61,68 +82,92 @@ export function HomeScreen() {
         </View>
 
         {/* Balance Card with Glassmorphism effect */}
-        <View style={{
-      paddingHorizontal: 20,
-      marginBottom: 20
-    }}>
-      <Card style={{
-        backgroundColor: '#ffffff',
-        borderRadius: 24,
-        padding: 24,
-        shadowColor: '#ffffff',
-        shadowOffset: {
-          width: 0,
-          height: 10
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
-        elevation: 10,
-        backdropFilter: 'blur(10px)'
-      }}>
-        <View style={{
-          flexDirection: 'column',
-          justifyContent: 'space-between'
-        }}>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <Image source={require('../assets/icon.png')} style={{width: 100, height: 30, marginTop: 10}} />
-            <Surface style={{
-              backgroundColor: '#145da0',
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 12
-            }}>
-              <Text style={{
-                color: '#ffffff',
-                fontSize: 12
-              }}>
-                070024358 • BCA Card
+        <View
+          style={{
+            paddingHorizontal: 20,
+            marginBottom: 20,
+          }}
+        >
+          <Card
+            style={{
+              backgroundColor: "#ffffff",
+              borderRadius: 24,
+              padding: 24,
+              shadowColor: "#ffffff",
+              shadowOffset: {
+                width: 0,
+                height: 10,
+              },
+              shadowOpacity: 0.3,
+              shadowRadius: 20,
+              elevation: 10,
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  source={require("../assets/icon.png")}
+                  style={{ width: 100, height: 30, marginTop: 10 }}
+                />
+                <Surface
+                  style={{
+                    backgroundColor: "#145da0",
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    borderRadius: 12,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#ffffff",
+                      fontSize: 12,
+                    }}
+                  >
+                    070024358 • BCA Card
+                  </Text>
+                </Surface>
+              </View>
+              <Divider
+                style={{
+                  backgroundColor: "#145da0",
+                  marginVertical: 16,
+                }}
+              />
+              <Text
+                style={{
+                  color: "#145da0",
+                  fontSize: 16,
+                }}
+              >
+                Total Transactions
               </Text>
-            </Surface>
-          </View>
-          <Divider style={{
-            backgroundColor: '#145da0',
-            marginVertical: 16
-          }} />
-          <Text style={{
-            color: '#145da0',
-            fontSize: 16,
-          }}>
-            Total Transactions
-          </Text>
-          <Text style={{
-            color: '#145da0',
-            fontSize: 36,
-            fontWeight: 'bold'
-          }}>
-            Rp. 500,000
-          </Text>
+              <Text
+                style={{
+                  color: "#145da0",
+                  fontSize: 36,
+                  fontWeight: "bold",
+                }}
+              >
+                {Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+              }).format(total)}
+              </Text>
+            </View>
+          </Card>
         </View>
-      </Card>
-    </View>
 
         {/* Modern Quick Actions */}
         <View>
@@ -157,10 +202,10 @@ export function HomeScreen() {
                     alignItems: "center",
                   }}
                 >
-                  <Icon name={item.icon} size={24} color="#145da0" />
+                  <Icon name={item?.icon} size={24} color="#145da0" />
                 </View>
                 <Text style={{ color: "#ffffff", fontSize: 12 }}>
-                  {item.label}
+                  {item?.label}
                 </Text>
               </View>
             ))}
@@ -194,36 +239,7 @@ export function HomeScreen() {
         </Text>
         <ScrollView style={{ paddingHorizontal: 20 }}>
           <View showsVerticalScrollIndicator={false}>
-            {[
-              {
-                title: "Fore Margo",
-                date: "Today",
-                amount: "+Rp. 50.000",
-                icon: "coffee",
-                color: "#10B981",
-              },
-              {
-                title: "Netflix",
-                date: "Yesterday",
-                amount: "-Rp. 159.000",
-                icon: "television",
-                color: "#EF4444",
-              },
-              {
-                title: "Spotify",
-                date: "May 3",
-                amount: "-Rp. 59.000",
-                icon: "music",
-                color: "#EF4444",
-              },
-              {
-                title: "Salary",
-                date: "May 1",
-                amount: "+Rp. 8.500.000",
-                icon: "cash",
-                color: "#10B981",
-              },
-            ].map((item, index) => (
+            {data?.getTransactions?.map((item, index) => (
               <TransactionCard item={item} key={index} />
             ))}
           </View>

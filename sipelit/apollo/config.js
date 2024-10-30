@@ -1,6 +1,34 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+// import { ApolloClient, InMemoryCache } from "@apollo/client";
+
+// export const client = new ApolloClient({
+//     uri: 'http://192.168.10.189:3000',
+//     cache: new InMemoryCache(),
+//   });
+
+import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
+import { getItemAsync } from "expo-secure-store";
+
+const httpLink = new HttpLink({
+  uri: "http://192.168.10.189:3000",
+  cors: false,
+});
+
+const authLink = setContext(async (_, { headers }) => {
+  // const token = await getItemAsync("access_token");
+  const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzIwY2FjMzYzNzhhZWE2ZWUxYjQwMWYiLCJpYXQiOjE3MzAyNzM4ODB9.xxEfuYLDVouGuHnPX1hWBlD3GQYdGx4MpsCvnH-wle4";
+  return token
+    ? {
+        headers: {
+          ...headers,
+          authorization: token ? `Bearer ${token}` : "",
+        },
+      }
+    : null;
+});
 
 export const client = new ApolloClient({
-    uri: 'http://localhost:3000',
-    cache: new InMemoryCache(),
-  });
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache(),
+});
