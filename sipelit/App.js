@@ -8,6 +8,10 @@ import { AssignPeopleScreen } from "./screens/AssignPeopleScreen";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "./apollo/config";
 import { ReceiptScreen } from "./screens/ReceiptScreen";
+import { useEffect, useState } from "react";
+import { AuthContext } from "./contex/authContex";
+import Register from "./screens/RegisterScreen";
+import Login from "./screens/LoginScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -40,19 +44,40 @@ export function BottomTab() {
 }
 
 export default function App() {
+  const [isLogin, setIsLogin] = useState(true);
+  const checkToken = async () => {
+    const token = await SecureStore.getItemAsync("accessToken");
+    if (token) {
+      setIsLogin(true);
+    }
+  };
+  useEffect(() => {
+    checkToken();
+  }, []);
   return (
-    <PaperProvider>
+    <AuthContext.Provider value={{ isLogin, setIsLogin }}>
       <ApolloProvider client={client}>
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen
-              name="Home"
-              component={BottomTab}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <PaperProvider>
+          <NavigationContainer>
+            <Stack.Navigator>
+              {isLogin ? (
+                <>
+                  <Stack.Screen
+                    name="Home"
+                    component={BottomTab}
+                    options={{ title: "Sipelit" }}
+                  />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen name="Register" component={Register} />
+                  <Stack.Screen name="Login" component={Login} />
+                </>
+              )}
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
       </ApolloProvider>
-    </PaperProvider>
+    </AuthContext.Provider>
   );
 }
