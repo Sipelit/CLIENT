@@ -16,6 +16,8 @@ import { getTransactions } from "../apollo/transactionQuery";
 
 export function HomeScreen() {
   const { data, error, loading, refetch } = useQuery(getTransactions);
+  console.log("🚀 ~ HomeScreen ~ error:", error)
+  console.log("🚀 ~ HomeScreen ~ data:", data)
   const [total, setTotal] = useState(0);
 
   const calculateTotal = () => {

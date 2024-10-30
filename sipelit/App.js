@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { AuthContext } from "./contex/authContex";
 import Register from "./screens/RegisterScreen";
 import Login from "./screens/LoginScreen";
+import * as SecureStore from "expo-secure-store";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();

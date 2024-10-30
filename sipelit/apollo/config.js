@@ -10,14 +10,18 @@ import { setContext } from "@apollo/client/link/context";
 import { getItemAsync } from "expo-secure-store";
 
 const httpLink = new HttpLink({
-  uri: "http://192.168.10.189:3000",
+  // Bryan
+  // uri: "http://192.168.10.189:3000",
+
+  //Tasya
+  uri: "http://192.168.9.252:3000",
   cors: false,
 });
 
 const authLink = setContext(async (_, { headers }) => {
   // const token = await getItemAsync("access_token");
   const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzIwY2FjMzYzNzhhZWE2ZWUxYjQwMWYiLCJpYXQiOjE3MzAyNzM4ODB9.xxEfuYLDVouGuHnPX1hWBlD3GQYdGx4MpsCvnH-wle4";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzIwY2FjMzYzNzhhZWE2ZWUxYjQwMWYiLCJpYXQiOjE3MzAyODYwMTd9.h1IwczWMZprEPesIqIHm69ZynLCpYmKEiL650B_xQKA";
   return token
     ? {
         headers: {
