@@ -1,109 +1,170 @@
-import React, { useContext, useState } from "react";
-import {
-  Button,
-  StyleSheet,
-  SafeAreaView,
-  TextInput,
-  View,
-  Alert,
-  Text,
-} from "react-native";
-import { Link } from "@react-navigation/native";
+import React, { useState } from "react";
+import { SafeAreaView, Alert, View, Image } from "react-native";
+import { TextInput, Button, Text, Surface } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
-import { AuthContext } from "../contex/authContex";
 import { useMutation } from "@apollo/client";
-import { LOGIN } from "../apollo/operations";
+import { login } from "../apollo/operations";
 
-// const LOGIN = gql`
-
-// `
-
-export function LoginScreen() {
-  const [loginUser] = useMutation(LOGIN);
-  const { setIsLogin } = useContext(AuthContext);
-
-  const handleLogin = async () => {
-    try {
-      const { data } = await loginUser({
-        variables: {
-          body: form,
-        },
-      });
-
-      console.log(form);
-
-      const token = data.login.accessToken;
-      await SecureStore.setItemAsync("accessToken", token);
-
-      setIsLogin(true);
-    } catch (error) {
-      Alert.alert(error.message);
-    }
-  };
-
+export function LoginScreen({ navigation }) {
+  const [loginUser] = useMutation(login);
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
+  const handleLogin = async () => {
+    try {
+      const { data } = await loginUser({
+        variables: { body: form },
+      });
+      const token = data.login.accessToken;
+      await SecureStore.setItemAsync("accessToken", token);
+    } catch (error) {
+      Alert.alert("Login Failed", error.message);
+    }
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#145da0" }}>
-      <View style={styles.container}>
-        <Text
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: "#145da0",
+      }}
+    >
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          paddingHorizontal: 24,
+        }}
+      >
+        {/* Logo and Welcome Section */}
+        <View
           style={{
-            fontSize: 32,
-            fontWeight: "bold",
-            color: "#145da0",
-            textAlign: "center",
+            alignItems: "center",
+            marginBottom: 40,
           }}
         >
-          Welcome Back
-        </Text>
-        <Text style={{ fontSize: 16, paddingBottom: 20 }}>
-          sign in to continue
-        </Text>
-      </View>
-      <View>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          onChangeText={(text) => setForm({ ...form, email: text })}
-          keyboardType="email-address"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          onChangeText={(text) => setForm({ ...form, password: text })}
-          secureTextEntry={true}
-        />
-      </View>
-      <View style={{ marginBottom: 10, paddingTop: 20 }}>
-        <Button onPress={handleLogin} title="Login" />
-      </View>
-      <View style={{ flexDirection: "row", justifyContent: "center" }}>
-        <Text>Don't have an account?</Text>
-        <Link to="/Register"> Register</Link>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "poppins",
+              fontWeight: "bold",
+              color: "#ffff",
+            }}
+          >
+            Sipelit.
+          </Text>
+          <Text
+            style={{
+              color: "#F3F4F6",
+              fontSize: 28,
+              fontWeight: "700",
+              marginBottom: 8,
+            }}
+          >
+            Welcome Back!
+          </Text>
+          <Text
+            style={{
+              color: "#F3F4F6",
+              fontSize: 16,
+              opacity: 0.8,
+            }}
+          >
+            Sign in to continue
+          </Text>
+        </View>
+
+        {/* Login Form Card */}
+        <Surface
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: 24,
+            padding: 24,
+            elevation: 4,
+          }}
+        >
+          <TextInput
+            label="Email"
+            value={form.email}
+            onChangeText={(text) => setForm({ ...form, email: text })}
+            keyboardType="email-address"
+            mode="outlined"
+            style={{
+              backgroundColor: "#ffffff",
+              marginBottom: 16,
+            }}
+            outlineColor="#E5E7EB"
+            activeOutlineColor="#145da0"
+            theme={{ colors: { primary: "#145da0" } }}
+          />
+
+          <TextInput
+            label="Password"
+            value={form.password}
+            onChangeText={(text) => setForm({ ...form, password: text })}
+            secureTextEntry={true}
+            mode="outlined"
+            style={{
+              backgroundColor: "#ffffff",
+              marginBottom: 24,
+            }}
+            outlineColor="#E5E7EB"
+            activeOutlineColor="#145da0"
+            theme={{ colors: { primary: "#145da0" } }}
+          />
+
+          <Button
+            mode="contained"
+            onPress={handleLogin}
+            style={{
+              paddingVertical: 6,
+              backgroundColor: "#145da0",
+              borderRadius: 12,
+            }}
+            labelStyle={{
+              fontSize: 16,
+              fontWeight: "600",
+            }}
+          >
+            Sign In
+          </Button>
+        </Surface>
+
+        {/* Register Link */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 16,
+          }}
+        >
+          <Text
+            style={{
+              color: "#F3F4F6",
+              fontSize: 14,
+            }}
+          >
+            Don't have an account?
+          </Text>
+          <Button
+            mode="text"
+            onPress={() => navigation.navigate("registerscreen")}
+            style={{
+              marginLeft: -8,
+            }}
+            labelStyle={{
+              color: "#F3F4F6",
+              fontSize: 14,
+              fontWeight: "700",
+            }}
+          >
+            Register
+          </Button>
+        </View>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 30,
-    paddingBottom: 35,
-    alignItems: "center",
-  },
-  input: {
-    height: 50,
-    marginVertical: 8,
-    borderWidth: 1,
-    borderColor: "lightgray",
-    padding: 10,
-    width: "100%",
-    backgroundColor: "white",
-    borderRadius: 8,
-  },
-});

@@ -1,116 +1,173 @@
-import { Link } from "@react-navigation/native";
+import React, { useState } from "react";
+import { SafeAreaView, Alert, View, ScrollView } from "react-native";
+import { TextInput, Button, Text, Surface } from "react-native-paper";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { useMutation } from "@apollo/client";
+import { register } from "../apollo/operations"; // Assuming you have this query
 
-import React from "react";
-import { StyleSheet, SafeAreaView, TextInput, View, Text } from "react-native";
-import { Button } from "react-native";
+export function RegisterScreen({ navigation }) {
+  const [form, setForm] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+  });
 
-// const REGISTER = gql`
+  const [Register] = useMutation(register, {
+    onCompleted: (data) => {
+      Alert.alert("Success", data.register);
+      navigation.navigate("LoginScreen");
+    },
+    onError: (error) => {
+      Alert.alert("Error", error.message);
+    },
+  });
 
-// `
-
-export default function RegisterScreen({ navigation }) {
-  //   const [name, setName] = useState("");
-  //   const [username, setUsername] = useState("");
-  //   const [email, setEmail] = useState("");
-  //   const [password, setPassword] = useState("");
-
-  //   const [registerUser] = useMutation(REGISTER, {
-  //     onCompleted: (data) => {
-  //       Alert.alert("Success", data.register);
-  //       navigation.navigate("login");
-  //     },
-  //     onError: (error) => {
-  //       Alert.alert("Error", error.message);
-  //     },
-  //   });
-
-  //   const handleSignUp = () => {
-  //     registerUser({
-  //       variables: {
-  //         body: {
-  //           name,
-  //           username,
-  //           email,
-  //           password,
-  //         },
-  //       },
-  //     });
-  //   };
+  const handleSignUp = () => {
+    Register({
+      variables: {
+        body: form,
+      },
+    });
+  };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: "#145da0"}}>
-    <View style={styles.container}>
-      <Text style={styles.title}>Create new Account</Text>
-      <View style={{ alignItems: "center" }}>
-        <Text style={{ flexDirection: "row", paddingBottom: 28, color:"#fff"}}>
-          <Text>Already have an account?</Text>
-          <Link to="/LoginScreen"> Login</Link>
-        </Text>
-      </View>
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        // value={name}
-        // onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        // value={username}
-        // onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        // value={email}
-        // onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        // value={password}
-        // onChangeText={setPassword}
-        secureTextEntry={true}
-      />
-      <View style={{ marginBottom: 10, paddingTop: 28 }}>
-        <Button title="Register" onPress={() => ("Registered!")} />
-      </View>
-      <View style={{ alignItems: "center" }}>
-        <Text style={{ fontSize: 12, color: "#fff"}}>
-          <AntDesign name="copyright" size={10} color="white" /> 2024 Sipelit.
-          All Rights Reserved
-        </Text>
-      </View>
-    </View>
-  </SafeAreaView>
-);
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#145da0" }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            paddingHorizontal: 24,
+            paddingVertical: 40,
+          }}
+        >
+          {/* Welcome Section */}
+          <View style={{ alignItems: "center", marginBottom: 20 }}>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "bold",
+                color: "#ffff",
+                marginBottom: 16,
+              }}
+            >
+              Sipelit.
+            </Text>
+            <Text
+              style={{
+                color: "#F3F4F6",
+                fontSize: 28,
+                fontWeight: "700",
+                marginBottom: 8,
+              }}
+            >
+              Create new Account
+            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ color: "#F3F4F6", fontSize: 14 }}>
+                Join with us!
+              </Text>
+            </View>
+          </View>
+
+          {/* Registration Form Card */}
+          <Surface
+            style={{
+              backgroundColor: "#ffffff",
+              borderRadius: 24,
+              padding: 24,
+              elevation: 4,
+            }}
+          >
+            <TextInput
+              label="Name"
+              value={form.name}
+              onChangeText={(text) => setForm({ ...form, name: text })}
+              mode="outlined"
+              style={{ backgroundColor: "#ffffff", marginBottom: 16 }}
+              outlineColor="#E5E7EB"
+              activeOutlineColor="#145da0"
+              theme={{ colors: { primary: "#145da0" } }}
+            />
+            <TextInput
+              label="Username"
+              value={form.username}
+              onChangeText={(text) => setForm({ ...form, username: text })}
+              mode="outlined"
+              style={{ backgroundColor: "#ffffff", marginBottom: 16 }}
+              outlineColor="#E5E7EB"
+              activeOutlineColor="#145da0"
+              theme={{ colors: { primary: "#145da0" } }}
+            />
+            <TextInput
+              label="Email"
+              value={form.email}
+              onChangeText={(text) => setForm({ ...form, email: text })}
+              keyboardType="email-address"
+              mode="outlined"
+              style={{ backgroundColor: "#ffffff", marginBottom: 16 }}
+              outlineColor="#E5E7EB"
+              activeOutlineColor="#145da0"
+              theme={{ colors: { primary: "#145da0" } }}
+            />
+            <TextInput
+              label="Password"
+              value={form.password}
+              onChangeText={(text) => setForm({ ...form, password: text })}
+              secureTextEntry={true}
+              mode="outlined"
+              style={{ backgroundColor: "#ffffff", marginBottom: 24 }}
+              outlineColor="#E5E7EB"
+              activeOutlineColor="#145da0"
+              theme={{ colors: { primary: "#145da0" } }}
+            />
+
+            <Button
+              mode="contained"
+              onPress={handleSignUp}
+              style={{
+                paddingVertical: 6,
+                backgroundColor: "#145da0",
+                borderRadius: 12,
+              }}
+              labelStyle={{
+                fontSize: 16,
+                fontWeight: "600",
+              }}
+            >
+              Register
+            </Button>
+          </Surface>
+
+          
+
+          {/* Copyright */}
+          <View style={{ alignItems: "center" }}>
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16, marginTop: 8 }}>
+              <Text style={{ color: "#F3F4F6", fontSize: 14 }}>
+                Already have an account?
+              </Text>
+              <Button
+                mode="text"
+                onPress={() => navigation.navigate("LoginScreen")}
+                labelStyle={{
+                  color: "#F3F4F6",
+                  fontSize: 14,
+                  fontWeight: "700",
+                  marginTop: 10
+                }}
+              >
+                Login
+              </Button>
+            </View>
+            <Text style={{ fontSize: 12, color: "#fff" }}>
+              <AntDesign name="copyright" size={10} color="white" /> 2024
+              Sipelit. All Rights Reserved
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
-
-const styles = StyleSheet.create({
-
-container: {
-  flex: 1,
-  justifyContent: "center",
-  paddingHorizontal: 30,
-  paddingBottom: 35,
-},
-title: {
-  fontSize: 32,
-  fontWeight: "bold",
-  marginBottom: 5,
-  color: "#fff",
-  textAlign: "center",
-},
-input: {
-  height: 50,
-  marginVertical: 8,
-  borderWidth: 1,
-  borderColor: "lightgray",
-  padding: 10,
-  backgroundColor: "white",
-  borderRadius: 8,
-  width: "100%",
-},
-});

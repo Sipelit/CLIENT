@@ -6,13 +6,21 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { CreateTransactionScreen } from "./screens/CreateTransactionScreen";
 import { AssignPeopleScreen } from "./screens/AssignPeopleScreen";
 import { ApolloProvider } from "@apollo/client";
-import { client } from "./apollo/config";
 import { ReceiptScreen } from "./screens/ReceiptScreen";
 import { useEffect, useState } from "react";
-import { AuthContext } from "./contex/authContex";
-import RegisterScreen from "./screens/RegisterScreen";
+import { AuthContext } from "./contexts/authContex";
+import { RegisterScreen } from "./screens/RegisterScreen";
 import { LoginScreen } from "./screens/LoginScreen";
+import { client } from "./apollo/config";
 import * as SecureStore from "expo-secure-store";
+
+import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+
+if (__DEV__) {
+  // Adds messages only in a dev environment
+  loadDevMessages();
+  loadErrorMessages();
+}
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -20,11 +28,16 @@ const Stack = createNativeStackNavigator();
 export function BottomTab() {
   return (
     <Tab.Navigator>
-      {/* <Tab.Screen
+      <Tab.Screen
         name="loginscreen"
         component={LoginScreen}
         options={{ headerShown: false }}
-      /> */}
+      />
+      <Tab.Screen
+        name="registerscreen"
+        component={RegisterScreen}
+        options={{ headerShown: false }}
+      />
       <Tab.Screen
         name="homescreen"
         component={HomeScreen}
@@ -53,10 +66,8 @@ export default function App() {
   const [isLogin, setIsLogin] = useState(true);
   const checkToken = async () => {
     // const token = await SecureStore.getItemAsync("accessToken");
-    const token = "kashaishiahsakhsashaks"
-    console.log(token, "token============");
-
-    if (token) {
+    const token = "kashaishiahsakhsashaks";
+    if (!token) {
       setIsLogin(false);
     }
   };
@@ -81,11 +92,11 @@ export default function App() {
                 </>
               ) : (
                 <>
-                  <Stack.Screen
+                  <Stack.Screen name="LoginScreen" component={LoginScreen} />
+                  {/* <Stack.Screen
                     name="RegisterScreen"
                     component={RegisterScreen}
-                  />
-                  <Stack.Screen name="LoginScreen" component={LoginScreen} />
+                  /> */}
                 </>
               )}
             </Stack.Navigator>
