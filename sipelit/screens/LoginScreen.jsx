@@ -9,39 +9,45 @@ import {
   Text,
 } from "react-native";
 import { Link } from "@react-navigation/native";
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 import { AuthContext } from "../contex/authContex";
+import { useMutation } from "@apollo/client";
+import { LOGIN } from "../apollo/operations";
 
 // const LOGIN = gql`
 
 // `
 
-export default function Login() {
-    // const {setIsLogin} = useContext(AuthContext)
-    // const [email, setEmail]= useState("")
-    // const [password, setPassword] = useState("")
+export function LoginScreen() {
+  const [loginUser] = useMutation(LOGIN);
+  const { setIsLogin } = useContext(AuthContext);
 
-    // const [loginUser] = useMutation(LOGIN)
+  const handleLogin = async () => {
+    try {
+      const { data } = await loginUser({
+        variables: {
+          body: form,
+        },
+      });
 
-    // const handleLogin = async ()=> {
-    //     try {
-    //         const result =  await loginUser({
-    //             variables: {
-    //                 body: {
-    //                     email,
-    //                     password
-    //                 }
-    //             }
-    //         })
-    //         const token = result.data.login.accessToken
-    //         await SecureStore.setItemAsync("accessToken", token)
-    //         setIsLogin(true)
-    //     } catch (error) {
-    //         Alert.alert(error.message)
-    //     }
-    // }
+      console.log(form);
+
+      const token = data.login.accessToken;
+      await SecureStore.setItemAsync("accessToken", token);
+
+      setIsLogin(true);
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+  };
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: "#145da0"}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#145da0" }}>
       <View style={styles.container}>
         <Text
           style={{
@@ -53,26 +59,26 @@ export default function Login() {
         >
           Welcome Back
         </Text>
-        <Text style={{fontSize: 16, paddingBottom: 20}}>sign in to continue</Text>
+        <Text style={{ fontSize: 16, paddingBottom: 20 }}>
+          sign in to continue
+        </Text>
       </View>
       <View>
         <TextInput
           style={styles.input}
           placeholder="Email"
-        //   onChangeText={setEmail}
-        //   value={email}
+          onChangeText={(text) => setForm({ ...form, email: text })}
           keyboardType="email-address"
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
-        //   onChangeText={setPassword}
-        //   value={password}
+          onChangeText={(text) => setForm({ ...form, password: text })}
           secureTextEntry={true}
         />
       </View>
-      <View style={{marginBottom: 10, paddingTop: 20}}>
-      <Button title="Login"/>
+      <View style={{ marginBottom: 10, paddingTop: 20 }}>
+        <Button onPress={handleLogin} title="Login" />
       </View>
       <View style={{ flexDirection: "row", justifyContent: "center" }}>
         <Text>Don't have an account?</Text>
@@ -88,7 +94,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 30,
     paddingBottom: 35,
-    alignItems: "center"
+    alignItems: "center",
   },
   input: {
     height: 50,
@@ -100,5 +106,4 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 8,
   },
-
 });

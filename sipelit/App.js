@@ -10,8 +10,8 @@ import { client } from "./apollo/config";
 import { ReceiptScreen } from "./screens/ReceiptScreen";
 import { useEffect, useState } from "react";
 import { AuthContext } from "./contex/authContex";
-import Register from "./screens/RegisterScreen";
-import Login from "./screens/LoginScreen";
+import RegisterScreen from "./screens/RegisterScreen";
+import { LoginScreen } from "./screens/LoginScreen";
 import * as SecureStore from "expo-secure-store";
 
 const Tab = createBottomTabNavigator();
@@ -20,6 +20,11 @@ const Stack = createNativeStackNavigator();
 export function BottomTab() {
   return (
     <Tab.Navigator>
+      {/* <Tab.Screen
+        name="loginscreen"
+        component={LoginScreen}
+        options={{ headerShown: false }}
+      /> */}
       <Tab.Screen
         name="homescreen"
         component={HomeScreen}
@@ -47,14 +52,19 @@ export function BottomTab() {
 export default function App() {
   const [isLogin, setIsLogin] = useState(true);
   const checkToken = async () => {
-    const token = await SecureStore.getItemAsync("accessToken");
+    // const token = await SecureStore.getItemAsync("accessToken");
+    const token = "kashaishiahsakhsashaks"
+    console.log(token, "token============");
+
     if (token) {
-      setIsLogin(true);
+      setIsLogin(false);
     }
   };
+
   useEffect(() => {
     checkToken();
   }, []);
+
   return (
     <AuthContext.Provider value={{ isLogin, setIsLogin }}>
       <ApolloProvider client={client}>
@@ -71,8 +81,11 @@ export default function App() {
                 </>
               ) : (
                 <>
-                  <Stack.Screen name="Register" component={Register} />
-                  <Stack.Screen name="Login" component={Login} />
+                  <Stack.Screen
+                    name="RegisterScreen"
+                    component={RegisterScreen}
+                  />
+                  <Stack.Screen name="LoginScreen" component={LoginScreen} />
                 </>
               )}
             </Stack.Navigator>

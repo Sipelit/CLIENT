@@ -9,7 +9,7 @@ import { Button } from "react-native";
 
 // `
 
-export default function Register({ navigation }) {
+export default function RegisterScreen({ navigation }) {
   //   const [name, setName] = useState("");
   //   const [username, setUsername] = useState("");
   //   const [email, setEmail] = useState("");
@@ -45,7 +45,7 @@ export default function Register({ navigation }) {
       <View style={{ alignItems: "center" }}>
         <Text style={{ flexDirection: "row", paddingBottom: 28, color:"#fff"}}>
           <Text>Already have an account?</Text>
-          <Link to="/Login"> Login</Link>
+          <Link to="/LoginScreen"> Login</Link>
         </Text>
       </View>
       <TextInput
