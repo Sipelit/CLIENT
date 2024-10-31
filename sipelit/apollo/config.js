@@ -4,10 +4,10 @@ import { getItemAsync } from "expo-secure-store";
 
 const httpLink = new HttpLink({
   // Bryan
-  uri: "http://192.168.10.189:3000",
+  // uri: "http://192.168.10.189:3000",
 
   //Tasya
-  // uri: "http://192.168.9.252:3000",
+  uri: "http://192.168.9.252:3000",
   // cors: false,
 });
 

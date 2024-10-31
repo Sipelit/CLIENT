@@ -1,50 +1,34 @@
+import React, { useEffect, useState } from "react";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
-import { HomeScreen } from "./screens/Homescreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import * as SecureStore from "expo-secure-store";
+import { ApolloProvider } from "@apollo/client";
+
+import { client } from "./apollo/config";
+import { AuthContext } from "./contexts/authContex";
+
+import { HomeScreen } from "./screens/Homescreen";
 import { CreateTransactionScreen } from "./screens/CreateTransactionScreen";
 import { AssignPeopleScreen } from "./screens/AssignPeopleScreen";
-import { ApolloProvider } from "@apollo/client";
 import { ReceiptScreen } from "./screens/ReceiptScreen";
-import { useEffect, useState } from "react";
-import { AuthContext } from "./contexts/authContex";
 import { RegisterScreen } from "./screens/RegisterScreen";
 import { LoginScreen } from "./screens/LoginScreen";
-import { client } from "./apollo/config";
-import * as SecureStore from "expo-secure-store";
-
-import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
-
-if (__DEV__) {
-  // Adds messages only in a dev environment
-  loadDevMessages();
-  loadErrorMessages();
-}
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-export function BottomTab() {
+function BottomTab() {
   return (
     <Tab.Navigator>
       <Tab.Screen
-        name="loginscreen"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
-      <Tab.Screen
-        name="registerscreen"
-        component={RegisterScreen}
-        options={{ headerShown: false }}
-      />
-      <Tab.Screen
-        name="homescreen"
+        name="HomeScreen"
         component={HomeScreen}
         options={{ headerShown: false }}
       />
       <Tab.Screen
-        name="transaction"
+        name="CreateTransactionScreen"
         component={CreateTransactionScreen}
         options={{ headerShown: false }}
       />
@@ -62,14 +46,21 @@ export function BottomTab() {
   );
 }
 
+function AuthStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="LoginScreen" component={LoginScreen} />
+      <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+    </Stack.Navigator>
+  );
+}
+
 export default function App() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
+
   const checkToken = async () => {
-    // const token = await SecureStore.getItemAsync("accessToken");
-    const token = "kashaishiahsakhsashaks";
-    if (!token) {
-      setIsLogin(false);
-    }
+    const token = await SecureStore.getItemAsync("accessToken");
+    setIsLogin(!!token);
   };
 
   useEffect(() => {
@@ -81,25 +72,17 @@ export default function App() {
       <ApolloProvider client={client}>
         <PaperProvider>
           <NavigationContainer>
-            <Stack.Navigator>
-              {isLogin ? (
-                <>
-                  <Stack.Screen
-                    name="Home"
-                    component={BottomTab}
-                    options={{ title: "Sipelit" }}
-                  />
-                </>
-              ) : (
-                <>
-                  <Stack.Screen name="LoginScreen" component={LoginScreen} />
-                  {/* <Stack.Screen
-                    name="RegisterScreen"
-                    component={RegisterScreen}
-                  /> */}
-                </>
-              )}
-            </Stack.Navigator>
+            {isLogin ? (
+              <Stack.Navigator>
+                <Stack.Screen
+                  name="BottomTab"
+                  component={BottomTab}
+                  options={{ title: "Sipelit", headerShown: false }}
+                />
+              </Stack.Navigator>
+            ) : (
+              <AuthStack />
+            )}
           </NavigationContainer>
         </PaperProvider>
       </ApolloProvider>
