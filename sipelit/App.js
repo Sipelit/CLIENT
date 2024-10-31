@@ -65,8 +65,8 @@ export function BottomTab() {
 export default function App() {
   const [isLogin, setIsLogin] = useState(true);
   const checkToken = async () => {
-    // const token = await SecureStore.getItemAsync("accessToken");
-    const token = "kashaishiahsakhsashaks";
+    const token = "dev"
+    
     if (!token) {
       setIsLogin(false);
     }
@@ -93,10 +93,6 @@ export default function App() {
               ) : (
                 <>
                   <Stack.Screen name="LoginScreen" component={LoginScreen} />
-                  {/* <Stack.Screen
-                    name="RegisterScreen"
-                    component={RegisterScreen}
-                  /> */}
                 </>
               )}
             </Stack.Navigator>

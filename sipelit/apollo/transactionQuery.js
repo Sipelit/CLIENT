@@ -12,6 +12,18 @@ export const getTransactions = gql`
     }
   }
 `;
+export const createTransaction = gql`
+  query GetTransactions {
+    getTransactions {
+      _id
+      name
+      category
+      totalPrice
+      userId
+      createdAt
+    }
+  }
+`;
 export const getTransactionById = gql`
   query GetTransactionById($id: ID) {
     getTransactionById(_id: $id) {

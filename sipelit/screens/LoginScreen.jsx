@@ -48,7 +48,6 @@ export function LoginScreen({ navigation }) {
           <Text
             style={{
               fontSize: 16,
-              fontFamily: "poppins",
               fontWeight: "bold",
               color: "#ffff",
             }}

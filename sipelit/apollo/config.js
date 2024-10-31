@@ -13,8 +13,8 @@ const httpLink = new HttpLink({
 
 const authLink = setContext(async (_, { headers }) => {
   // const token = await getItemAsync("access_token");
-  const token =""
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzIwY2FjMzYzNzhhZWE2ZWUxYjQwMWYiLCJpYXQiOjE3MzAyODYwMTd9.h1IwczWMZprEPesIqIHm69ZynLCpYmKEiL650B_xQKA";
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzIwY2FjMzYzNzhhZWE2ZWUxYjQwMWYiLCJpYXQiOjE3MzAyMDIzMzB9.fFRi2ZF4YipmVcMhbl_yibMiIzNwu5jsWdSmG2BPxiQ";
+  
   return token
     ? {
         headers: {
