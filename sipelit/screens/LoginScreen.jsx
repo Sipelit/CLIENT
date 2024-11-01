@@ -3,11 +3,11 @@ import { SafeAreaView, Alert, View } from "react-native";
 import { TextInput, Button, Text, Surface } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import { useMutation } from "@apollo/client";
-import { AuthContext } from "../contexts/authContex"; 
+import { AuthContext } from "../contexts/authContext";
 import { login } from "../apollo/operations";
 
 export function LoginScreen({ navigation }) {
-  const { setIsLogin } = useContext(AuthContext); 
+  const { setIsLoggedIn } = useContext(AuthContext);
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -26,8 +26,16 @@ export function LoginScreen({ navigation }) {
 
       if (data && data.login && data.login.token) {
         const token = data.login.token;
-        await SecureStore.setItemAsync("accessToken", token);
-        setIsLogin(true);
+        await SecureStore.setItemAsync("access_token", token);
+
+        const user = {
+          username : data.login.username,
+          _id : data.login._id
+        }
+
+        await SecureStore.setItemAsync("userId", JSON.stringify(user));
+        setIsLoggedIn(true);
+
       } else {
         Alert.alert("Login Failed", "Unexpected response from server");
       }
