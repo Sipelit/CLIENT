@@ -150,7 +150,7 @@ export function LoginScreen({ navigation }) {
           </Text>
           <Button
             mode="text"
-            onPress={() => navigation.navigate("registerscreen")}
+            onPress={() => navigation.navigate("RegisterScreen")}
             style={{
               marginLeft: -8,
             }}

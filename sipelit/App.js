@@ -15,6 +15,7 @@ import { client } from "./apollo/config";
 import * as SecureStore from "expo-secure-store";
 
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+import OcrScreen from "./screens/OCRScreen";
 
 if (__DEV__) {
   // Adds messages only in a dev environment
@@ -28,6 +29,11 @@ const Stack = createNativeStackNavigator();
 export function BottomTab() {
   return (
     <Tab.Navigator>
+      <Tab.Screen
+        name="Ocrscreen"
+        component={OcrScreen}
+        options={{ headerShown: false }}
+      />
       <Tab.Screen
         name="loginscreen"
         component={LoginScreen}
@@ -65,8 +71,8 @@ export function BottomTab() {
 export default function App() {
   const [isLogin, setIsLogin] = useState(true);
   const checkToken = async () => {
-    const token = "dev"
-    
+    const token = "dev";
+
     if (!token) {
       setIsLogin(false);
     }
