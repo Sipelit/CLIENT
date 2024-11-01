@@ -18,6 +18,7 @@ import { LoginScreen } from "./screens/LoginScreen";
 import { getUserById } from "./apollo/userQuery";
 
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+import OcrScreen from "./screens/OCRScreen";
 
 if (__DEV__) {
   // Adds messages only in a dev environment
