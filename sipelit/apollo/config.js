@@ -8,6 +8,8 @@ const httpLink = new HttpLink({
 
   //Tasya
   uri: "http://192.168.9.252:3000",
+
+  
   // cors: false,
 });
 
