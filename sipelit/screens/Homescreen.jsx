@@ -15,7 +15,6 @@ import FAB from "../components/FAB";
 import { useQuery } from "@apollo/client";
 import { getTransactions } from "../apollo/transactionQuery";
 import * as SecureStore from "expo-secure-store";
-import { AuthContext } from "../contexts/authContex";
 import * as MediaLibrary from "expo-media-library";
 import { AuthContext } from "../contexts/authContext";
 import { getUserById } from "../apollo/userQuery";
@@ -64,8 +63,15 @@ export function HomeScreen({ navigation }) {
       setRequestPermissions(false);
     }
   }, [requestPermissions]);
-  console.log("🚀 ~ useEffect ~ status:", status);
-  console.log("🚀 ~ useEffect ~ status:", status);
+  // console.log("🚀 ~ useEffect ~ status:", status);
+  // console.log("🚀 ~ useEffect ~ status:", status);
+
+
+  //Navigate to OCR
+    const navigateToOcrScreen = () => {
+      navigation.navigate("OCRScreen");
+    };
+
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
@@ -179,7 +185,7 @@ export function HomeScreen({ navigation }) {
           {[
             { icon: "send", label: "Send" },
             { icon: "credit-card", label: "Card" },
-            { icon: "qrcode-scan", label: "Scan" },
+            { icon: "qrcode-scan", label: "Scan", action: navigateToOcrScreen },
             { icon: "swap-horizontal", label: "Exchange" },
             { icon: "dots-horizontal", label: "More" },
           ].map((item, index) => (
@@ -196,7 +202,8 @@ export function HomeScreen({ navigation }) {
                   alignItems: "center",
                 }}
               >
-                <Icon name={item?.icon} size={24} color="#145da0" />
+            
+                <Icon name={item?.icon} size={24} color="#145da0" onPress={item?.action} />
               </View>
               <Text style={{ color: "#ffffff", fontSize: 12 }}>
                 {item?.label}
