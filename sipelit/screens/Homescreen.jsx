@@ -16,11 +16,15 @@ import { useQuery } from "@apollo/client";
 import { getTransactions } from "../apollo/transactionQuery";
 import * as SecureStore from "expo-secure-store";
 import { AuthContext } from "../contexts/authContex";
+import * as MediaLibrary from "expo-media-library";
 
 export function HomeScreen({ navigation }) {
   const { data, error, loading, refetch } = useQuery(getTransactions);
   const [total, setTotal] = useState(0);
   const { setIsLogin } = useContext(AuthContext);
+  const [status, requestPermission] = MediaLibrary.usePermissions(true);
+  //testing permission. comment before launch
+  const [requestPermissions, setRequestPermissions] = useState(true);
 
   const calculateTotal = () => {
     let price = 0;
@@ -32,7 +36,8 @@ export function HomeScreen({ navigation }) {
 
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("accessToken");
-    setIsLogin(false); 
+    setIsLogin(false);
+    setRequestPermissions(true);
     navigation.navigate("LoginScreen");
   };
 
@@ -41,9 +46,17 @@ export function HomeScreen({ navigation }) {
     refetch();
   }, [data]);
 
+  //permission
+  useEffect(() => {
+    if (status === null) {
+      requestPermission({ accessPrivileges: "limited" });
+      setRequestPermissions(false);
+    }
+  }, [requestPermissions]);
+  console.log("🚀 ~ useEffect ~ status:", status);
+
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
-      
       <View style={{ padding: 24, marginTop: 18 }}>
         <View
           style={{
@@ -68,7 +81,10 @@ export function HomeScreen({ navigation }) {
             </Text>
           </View>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <TouchableOpacity onPress={handleLogout} style={{ marginRight: 16 }}>
+            <TouchableOpacity
+              onPress={handleLogout}
+              style={{ marginRight: 16 }}
+            >
               <Icon name="logout" size={24} color="#ffffff" />
             </TouchableOpacity>
             <Avatar.Image
@@ -94,7 +110,9 @@ export function HomeScreen({ navigation }) {
             elevation: 10,
           }}
         >
-          <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
+          <View
+            style={{ flexDirection: "column", justifyContent: "space-between" }}
+          >
             <View
               style={{
                 flexDirection: "row",
@@ -119,9 +137,15 @@ export function HomeScreen({ navigation }) {
                 </Text>
               </Surface>
             </View>
-            <Divider style={{ backgroundColor: "#145da0", marginVertical: 16 }} />
-            <Text style={{ color: "#145da0", fontSize: 16 }}>Total Transactions</Text>
-            <Text style={{ color: "#145da0", fontSize: 36, fontWeight: "bold" }}>
+            <Divider
+              style={{ backgroundColor: "#145da0", marginVertical: 16 }}
+            />
+            <Text style={{ color: "#145da0", fontSize: 16 }}>
+              Total Transactions
+            </Text>
+            <Text
+              style={{ color: "#145da0", fontSize: 36, fontWeight: "bold" }}
+            >
               {Intl.NumberFormat("id-ID", {
                 style: "currency",
                 currency: "IDR",
@@ -158,7 +182,9 @@ export function HomeScreen({ navigation }) {
             >
               <Icon name={item?.icon} size={24} color="#145da0" />
             </View>
-            <Text style={{ color: "#ffffff", fontSize: 12 }}>{item?.label}</Text>
+            <Text style={{ color: "#ffffff", fontSize: 12 }}>
+              {item?.label}
+            </Text>
           </View>
         ))}
       </ScrollView>

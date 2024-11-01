@@ -3,19 +3,20 @@ import { SafeAreaView, Alert, View } from "react-native";
 import { TextInput, Button, Text, Surface } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import { useMutation } from "@apollo/client";
-import { AuthContext } from "../contexts/authContex"; 
+import { AuthContext } from "../contexts/authContex";
 import { login } from "../apollo/operations";
 
 export function LoginScreen({ navigation }) {
-  const { setIsLogin } = useContext(AuthContext); 
+  const { setIsLogin } = useContext(AuthContext);
   const [form, setForm] = useState({
     username: "",
     password: "",
   });
+  console.log(form);
 
   const [Login] = useMutation(login);
 
-  const handleLogin = async () => {
+  const handleLogin = async () => { 
     try {
       const { data } = await Login({
         variables: {
