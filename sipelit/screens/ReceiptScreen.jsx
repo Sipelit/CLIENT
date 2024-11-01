@@ -6,7 +6,6 @@ import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
 
 export function ReceiptScreen({ navigation, route }) {
-
   // This would normally come from route.params
   const mockData = {
     merchantName: "Hacktiv8",
@@ -48,24 +47,23 @@ export function ReceiptScreen({ navigation, route }) {
   };
 
   const imageRef = useRef();
-    const onSaveImageAsync = async () => {
-      try {
-        const localUri = await captureRef(imageRef, {
-          height: 440,
-          quality: 1,
-        });
+  const onSaveImageAsync = async () => {
+    try {
+      const localUri = await captureRef(imageRef, {
+        height: 440,
+        quality: 1,
+      });
 
-        await MediaLibrary.saveToLibraryAsync(localUri);
-        await Sharing.shareAsync(localUri);
-        
+      await MediaLibrary.saveToLibraryAsync(localUri);
+      await Sharing.shareAsync(localUri);
 
-        // if (localUri) {
-        //   alert("Saved!");
-        // }
-      } catch (e) {
-        console.log(e);
-      }
-    };
+      // if (localUri) {
+      //   alert("Saved!");
+      // }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
@@ -105,14 +103,14 @@ export function ReceiptScreen({ navigation, route }) {
       </View>
       <ScrollView>
         <View ref={imageRef} collapsable={false}>
-        <Surface
-          style={{
-            backgroundColor: "#ffffff",
-            margin: 20,
-            borderRadius: 8,
-            padding: 20,
-          }}
-        >
+          <Surface
+            style={{
+              backgroundColor: "#ffffff",
+              margin: 20,
+              borderRadius: 8,
+              padding: 20,
+            }}
+          >
             {/* Receipt Header */}
             <View style={{ alignItems: "center", marginBottom: 20 }}>
               <Text
@@ -282,8 +280,8 @@ export function ReceiptScreen({ navigation, route }) {
                 style={{ width: 100, height: 30, marginTop: 4 }}
               />
             </View>
-        </Surface>
-          </View>
+          </Surface>
+        </View>
 
         {/* Action Buttons */}
         <View
