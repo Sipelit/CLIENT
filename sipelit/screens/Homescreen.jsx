@@ -54,6 +54,7 @@ export function HomeScreen({ navigation }) {
     }
   }, [requestPermissions]);
   console.log("🚀 ~ useEffect ~ status:", status);
+  console.log("🚀 ~ useEffect ~ status:", status);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
