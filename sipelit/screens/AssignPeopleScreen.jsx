@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useQuery } from "@apollo/client";
+import React, { useState, useEffect } from "react";
 import { View, ScrollView, Alert } from "react-native";
 import {
   Text,
@@ -7,35 +8,27 @@ import {
   Surface,
   IconButton,
 } from "react-native-paper";
+import { getTransactionById } from "../apollo/transactionQuery";
 
 export function AssignPeopleScreen({ route, navigation }) {
-  const [transactionItems, setTransactionItems] = useState({
-    category: "Food",
-    items: [
-      {
-        name: "Kopi susu",
-        price: 8000,
-        quantity: 3,
-        remainingQuantity: 3,
-        totalPrice: 24000,
-      },
-      {
-        name: "Kopi Oatside",
-        price: 12000,
-        quantity: 1,
-        remainingQuantity: 1,
-        totalPrice: 12000,
-      },
-    ],
-    name: "Hacktiv8",
-    totalPrice: 36000,
-    tax: 10,
+  const [transactionItems, setTransactionItems] = useState(null);
+  // const { id } = route.params;
+  const id = "672456cf2ab5fa469f2484ff";
+
+  const { data, loading, error } = useQuery(getTransactionById, {
+    variables: {
+      id,
+    },
   });
-  const { id } = route.params;
+
+  useEffect(() => {
+    if (data && data.getTransactionById) {
+      setTransactionItems(data.getTransactionById);
+    }
+  }, [data]);
 
   const [people, setPeople] = useState([]);
   const [newPersonName, setNewPersonName] = useState("");
-
   const [itemAssignments, setItemAssignments] = useState([]);
 
   const addPerson = () => {
@@ -54,7 +47,7 @@ export function AssignPeopleScreen({ route, navigation }) {
   const addItemAssignment = (itemIndex, personId) => {
     const item = transactionItems.items[itemIndex];
 
-    if (item.remainingQuantity > 0) {
+    if (item.quantity > 0) {
       setItemAssignments((prev) => [
         ...prev,
         {
@@ -70,7 +63,7 @@ export function AssignPeopleScreen({ route, navigation }) {
         const updatedItems = [...prev.items];
         updatedItems[itemIndex] = {
           ...updatedItems[itemIndex],
-          remainingQuantity: updatedItems[itemIndex].remainingQuantity - 1,
+          quantity: updatedItems[itemIndex].quantity - 1,
         };
         return { ...prev, items: updatedItems };
       });
@@ -84,8 +77,7 @@ export function AssignPeopleScreen({ route, navigation }) {
       const updatedItems = [...prev.items];
       updatedItems[assignment.itemIndex] = {
         ...updatedItems[assignment.itemIndex],
-        remainingQuantity:
-          updatedItems[assignment.itemIndex].remainingQuantity + 1,
+        quantity: updatedItems[assignment.itemIndex].quantity + 1,
       };
       return { ...prev, items: updatedItems };
     });
@@ -117,8 +109,7 @@ export function AssignPeopleScreen({ route, navigation }) {
         const updatedItems = [...prev.items];
         updatedItems[assignment.itemIndex] = {
           ...updatedItems[assignment.itemIndex],
-          remainingQuantity:
-            updatedItems[assignment.itemIndex].remainingQuantity + 1,
+          quantity: updatedItems[assignment.itemIndex].quantity + 1,
         };
         return { ...prev, items: updatedItems };
       });
@@ -150,6 +141,7 @@ export function AssignPeopleScreen({ route, navigation }) {
           return acc;
         }, []),
       totalPrice: calculatePersonTotal(person.id),
+      transactionId: id,
       userId: person.id.toString(),
     }));
 
@@ -164,11 +156,16 @@ export function AssignPeopleScreen({ route, navigation }) {
     if (totalAssignedQuantity < totalOriginalQuantity) {
       Alert.alert("Warning: Not all items have been assigned!");
     }
+
+
   };
+
+  if (loading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error: {error.message}</Text>;
+  if (!transactionItems) return null;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
-      {/* Header */}
       <View
         style={{
           flexDirection: "row",
@@ -205,7 +202,6 @@ export function AssignPeopleScreen({ route, navigation }) {
       </View>
 
       <ScrollView>
-        {/* Add People Section */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Surface
             style={{
@@ -239,7 +235,6 @@ export function AssignPeopleScreen({ route, navigation }) {
               </Button>
             </View>
 
-            {/* People List */}
             {people.map((person) => (
               <Surface
                 key={person.id}
@@ -267,7 +262,6 @@ export function AssignPeopleScreen({ route, navigation }) {
           </Surface>
         </View>
 
-        {/* Items Assignment Section */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Surface
             style={{
@@ -305,7 +299,7 @@ export function AssignPeopleScreen({ route, navigation }) {
                       style: "currency",
                       currency: "IDR",
                     }).format(item.price)}{" "}
-                    x {item.remainingQuantity} remaining
+                    x {item.quantity} remaining
                   </Text>
                 </View>
 
@@ -323,7 +317,7 @@ export function AssignPeopleScreen({ route, navigation }) {
                       labelStyle={{
                         color: "#145da0",
                       }}
-                      disabled={item.remainingQuantity === 0}
+                      disabled={item.quantity === 0}
                     >
                       {person.name}
                     </Button>
@@ -334,7 +328,6 @@ export function AssignPeopleScreen({ route, navigation }) {
           </Surface>
         </View>
 
-        {/* Assignments Summary */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Surface
             style={{
@@ -422,7 +415,6 @@ export function AssignPeopleScreen({ route, navigation }) {
           </Surface>
         </View>
 
-        {/* Final Summary */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Surface
             style={{
@@ -485,7 +477,6 @@ export function AssignPeopleScreen({ route, navigation }) {
           </Surface>
         </View>
 
-        {/* Submit Button */}
         <View style={{ padding: 20 }}>
           <Button
             mode="contained"

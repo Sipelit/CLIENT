@@ -203,6 +203,7 @@ export function HomeScreen({ navigation }) {
           />
         </View>
 
+
         <Text
           style={{
             color: "#F3F4F6",
