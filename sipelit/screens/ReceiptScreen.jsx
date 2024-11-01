@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, ScrollView, Image } from "react-native";
 import { Text, Surface, Button } from "react-native-paper";
+import * as MediaLibrary from "expo-media-library";
 
 export function ReceiptScreen({ navigation, route }) {
+
   // This would normally come from route.params
   const mockData = {
     merchantName: "Hacktiv8",
@@ -42,6 +44,16 @@ export function ReceiptScreen({ navigation, route }) {
     tax: 10,
     originalTotal: 36000,
   };
+
+//Ask Permission
+//masih perlu dites
+   const [status, requestPermission] = MediaLibrary.usePermissions();
+   useEffect(() => {
+     if (status === null) {
+       requestPermission({ accessPrivileges: "limited" });
+     }
+   }, []);
+
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
