@@ -29,6 +29,7 @@ export const createTransaction = gql`
       totalPrice: $totalPrice
       tax: $tax
     ) {
+      _id
       name
       category
       tax

@@ -29,13 +29,12 @@ export function LoginScreen({ navigation }) {
         await SecureStore.setItemAsync("access_token", token);
 
         const user = {
-          username : data.login.username,
-          _id : data.login._id
-        }
+          username: data.login.username,
+          _id: data.login._id,
+        };
 
         await SecureStore.setItemAsync("userId", JSON.stringify(user));
         setIsLoggedIn(true);
-
       } else {
         Alert.alert("Login Failed", "Unexpected response from server");
       }

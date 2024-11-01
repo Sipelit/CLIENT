@@ -1,6 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { gql } from "@apollo/client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, ScrollView } from "react-native";
 import {
   Text,
@@ -10,44 +9,13 @@ import {
   IconButton,
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-
-const CREATE_TRANSACTION = gql`
-  mutation CreateTransaction(
-    $category: String!
-    $items: [ItemInput]!
-    $name: String!
-    $tax: Float!
-    $totalPrice: Float!
-  ) {
-    createTransaction(
-      category: $category
-      items: $items
-      name: $name
-      tax: $tax
-      totalPrice: $totalPrice
-    ) {
-      id
-      name
-      category
-      tax
-      totalPrice
-      items {
-        name
-        price
-        quantity
-        totalPrice
-      }
-      createdAt
-      updatedAt
-    }
-  }
-`;
+import { createTransaction } from "../apollo/transactionQuery";
 
 export function CreateTransactionScreen({ navigation }) {
   const [
     createNewTransaction,
     { data: mutationData, loading: mutationLoading, error: mutationError },
-  ] = useMutation(CREATE_TRANSACTION);
+  ] = useMutation(createTransaction);
 
   const [transaction, setTransaction] = useState({
     name: "",
@@ -116,9 +84,13 @@ export function CreateTransactionScreen({ navigation }) {
         variables: transaction,
       });
 
-      if (data) {
+      if (!data) {
         navigation.goBack();
       }
+
+      navigation.navigate("AssignPeopleScreen", {
+        id: data.createTransaction._id,
+      });
     } catch (error) {
       console.error("Error creating transaction:", error);
     }
