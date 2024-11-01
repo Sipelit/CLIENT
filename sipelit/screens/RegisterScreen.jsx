@@ -17,7 +17,7 @@ export function RegisterScreen({ navigation }) {
 
   const handleSignUp = async () => {
     try {
-      Register({
+      await Register({
         variables: {
           name: form.name,
           username: form.username,

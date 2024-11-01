@@ -15,7 +15,6 @@ import FAB from "../components/FAB";
 import { useQuery } from "@apollo/client";
 import { getTransactions } from "../apollo/transactionQuery";
 import * as SecureStore from "expo-secure-store";
-import { AuthContext } from "../contexts/authContex";
 import * as MediaLibrary from "expo-media-library";
 import { AuthContext } from "../contexts/authContext";
 import { getUserById } from "../apollo/userQuery";
@@ -64,8 +63,6 @@ export function HomeScreen({ navigation }) {
       setRequestPermissions(false);
     }
   }, [requestPermissions]);
-  console.log("🚀 ~ useEffect ~ status:", status);
-  console.log("🚀 ~ useEffect ~ status:", status);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>

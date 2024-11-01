@@ -12,7 +12,6 @@ export function LoginScreen({ navigation }) {
     username: "",
     password: "",
   });
-  console.log(form);
 
   const [Login] = useMutation(login);
 
