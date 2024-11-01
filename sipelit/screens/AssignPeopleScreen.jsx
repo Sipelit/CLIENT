@@ -8,8 +8,7 @@ import {
   IconButton,
 } from "react-native-paper";
 
-export function AssignPeopleScreen({ navigation }) {
-  // Hardcoded transaction data
+export function AssignPeopleScreen({ route, navigation }) {
   const [transactionItems, setTransactionItems] = useState({
     category: "Food",
     items: [
@@ -32,6 +31,7 @@ export function AssignPeopleScreen({ navigation }) {
     totalPrice: 36000,
     tax: 10,
   });
+  const { id } = route.params;
 
   const [people, setPeople] = useState([]);
   const [newPersonName, setNewPersonName] = useState("");

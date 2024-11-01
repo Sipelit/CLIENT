@@ -9,22 +9,24 @@ const httpLink = new HttpLink({
   //Tasya
   uri: "http://192.168.9.252:3000",
 
+  //kelvin
+  // uri: "http://192.168.9.218:3000",
+  
+  //indah
+  // uri: "192.168.8.157:3000",
   
   // cors: false,
 });
 
 const authLink = setContext(async (_, { headers }) => {
-  // const token = await getItemAsync("access_token");
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzIwY2FjMzYzNzhhZWE2ZWUxYjQwMWYiLCJpYXQiOjE3MzAyMDIzMzB9.fFRi2ZF4YipmVcMhbl_yibMiIzNwu5jsWdSmG2BPxiQ";
-  
-  return token
-    ? {
-        headers: {
-          ...headers,
-          authorization: token ? `Bearer ${token}` : "",
-        },
-      }
-    : null;
+  const token = await getItemAsync("access_token");
+
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    },
+  };
 });
 
 export const client = new ApolloClient({

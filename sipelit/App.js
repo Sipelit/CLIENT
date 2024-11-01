@@ -4,10 +4,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as SecureStore from "expo-secure-store";
-import { ApolloProvider } from "@apollo/client";
+import { ApolloProvider, useQuery } from "@apollo/client";
 
 import { client } from "./apollo/config";
-import { AuthContext } from "./contexts/authContex";
+import { AuthContext } from "./contexts/authContext";
 
 import { HomeScreen } from "./screens/Homescreen";
 import { CreateTransactionScreen } from "./screens/CreateTransactionScreen";
@@ -15,6 +15,16 @@ import { AssignPeopleScreen } from "./screens/AssignPeopleScreen";
 import { ReceiptScreen } from "./screens/ReceiptScreen";
 import { RegisterScreen } from "./screens/RegisterScreen";
 import { LoginScreen } from "./screens/LoginScreen";
+import { getUserById } from "./apollo/userQuery";
+
+import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+import OcrScreen from "./screens/OCRScreen";
+
+if (__DEV__) {
+  // Adds messages only in a dev environment
+  loadDevMessages();
+  loadErrorMessages();
+}
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -56,11 +66,14 @@ function AuthStack() {
 }
 
 export default function App() {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(false);
 
   const checkToken = async () => {
-    const token = await SecureStore.getItemAsync("accessToken");
-    setIsLogin(!!token);
+    const token = await SecureStore.getItemAsync("access_token");
+    if (token) setIsLoggedIn(true);
+    const userId = await SecureStore.getItemAsync("userId");
+    if (userId) setCurrentUser(JSON.parse(userId));
   };
 
   useEffect(() => {
@@ -68,11 +81,13 @@ export default function App() {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLogin, setIsLogin }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, setIsLoggedIn, currentUser, setCurrentUser }}
+    >
       <ApolloProvider client={client}>
         <PaperProvider>
           <NavigationContainer>
-            {isLogin ? (
+            {isLoggedIn ? (
               <Stack.Navigator>
                 <Stack.Screen
                   name="BottomTab"
