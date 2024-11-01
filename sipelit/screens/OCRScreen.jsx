@@ -54,7 +54,15 @@ const OcrScreen = () => {
       alert('Please select an image first');
       return;
     }
-
+    try {
+      const result = await MlkitOcr.detectFromUri(imageUri);
+      const text = result.map(block => block.text).join('\n');
+      setOcrResult(text); // Save the OCR result to display
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred while processing the image.');
+    
+  };
     // try {
     //   // Konversi URI gambar ke format base64
     //   const base64Image = await FileSystem.readAsStringAsync(imageUri, {
