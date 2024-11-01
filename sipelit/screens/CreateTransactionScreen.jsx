@@ -1,3 +1,5 @@
+import { useMutation } from "@apollo/client";
+import { gql } from "@apollo/client";
 import React, { useEffect, useState } from "react";
 import { View, ScrollView } from "react-native";
 import {
@@ -9,7 +11,44 @@ import {
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
+const CREATE_TRANSACTION = gql`
+  mutation CreateTransaction(
+    $category: String!
+    $items: [ItemInput]!
+    $name: String!
+    $tax: Float!
+    $totalPrice: Float!
+  ) {
+    createTransaction(
+      category: $category
+      items: $items
+      name: $name
+      tax: $tax
+      totalPrice: $totalPrice
+    ) {
+      id
+      name
+      category
+      tax
+      totalPrice
+      items {
+        name
+        price
+        quantity
+        totalPrice
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 export function CreateTransactionScreen({ navigation }) {
+  const [
+    createNewTransaction,
+    { data: mutationData, loading: mutationLoading, error: mutationError },
+  ] = useMutation(CREATE_TRANSACTION);
+
   const [transaction, setTransaction] = useState({
     name: "",
     items: [],
@@ -37,9 +76,9 @@ export function CreateTransactionScreen({ navigation }) {
     if (itemInput.name && itemInput.price > 0 && itemInput.quantity > 0) {
       const newItem = {
         ...itemInput,
-        price: +itemInput.price,
-        quantity: +itemInput.quantity,
-        totalPrice: +itemInput.price * +itemInput.quantity,
+        price: Number(itemInput.price),
+        quantity: Number(itemInput.quantity),
+        totalPrice: Number(itemInput.price) * Number(itemInput.quantity),
       };
       setTransaction((prev) => ({
         ...prev,
@@ -62,13 +101,27 @@ export function CreateTransactionScreen({ navigation }) {
 
   const calculateTotalPrice = () => {
     const subtotal = transaction.items.reduce((sum, item) => {
-      return sum + +item.price * +item.quantity;
+      return sum + Number(item.price) * Number(item.quantity);
     }, 0);
 
-    const taxRate = transaction.tax ? +transaction.tax / 100 : 0;
+    const taxRate = transaction.tax ? Number(transaction.tax) / 100 : 0;
     const totalWithTax = subtotal * (1 + taxRate);
 
     setTransaction((prev) => ({ ...prev, totalPrice: totalWithTax }));
+  };
+
+  const createTransactionHandler = async () => {
+    try {
+      const { data } = await createNewTransaction({
+        variables: transaction,
+      });
+
+      if (data) {
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+    }
   };
 
   useEffect(() => {
@@ -77,7 +130,6 @@ export function CreateTransactionScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
-      {/* Header */}
       <View
         style={{
           flexDirection: "row",
@@ -114,7 +166,6 @@ export function CreateTransactionScreen({ navigation }) {
       </View>
 
       <ScrollView>
-        {/* Transaction Name */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Surface
             style={{
@@ -129,20 +180,19 @@ export function CreateTransactionScreen({ navigation }) {
             <TextInput
               value={transaction.name}
               onChangeText={(name) =>
-                setTransaction((prev) => ({ ...prev, name: name }))
+                setTransaction((prev) => ({ ...prev, name }))
               }
               style={{
                 backgroundColor: "#ffffff",
               }}
               placeholder="Enter transaction name"
               placeholderTextColor="#9CA3AF"
-              underlineColor="#145da 0"
+              underlineColor="#145da0"
               activeUnderlineColor="#145da0"
             />
           </Surface>
         </View>
 
-        {/* Transaction Categories */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Text
             style={{
@@ -202,7 +252,6 @@ export function CreateTransactionScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Add Items */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Surface
             style={{
@@ -219,7 +268,7 @@ export function CreateTransactionScreen({ navigation }) {
               <TextInput
                 value={itemInput.name}
                 onChangeText={(name) =>
-                  setItemInput((prev) => ({ ...prev, name: name }))
+                  setItemInput((prev) => ({ ...prev, name }))
                 }
                 style={{ backgroundColor: "#ffffff", marginBottom: 8 }}
                 placeholder="Item name"
@@ -229,9 +278,9 @@ export function CreateTransactionScreen({ navigation }) {
 
               <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
                 <TextInput
-                  value={itemInput.price}
+                  value={String(itemInput.price)}
                   onChangeText={(price) =>
-                    setItemInput((prev) => ({ ...prev, price: price }))
+                    setItemInput((prev) => ({ ...prev, price }))
                   }
                   style={{ backgroundColor: "#ffffff", flex: 2 }}
                   placeholder="Price"
@@ -241,9 +290,9 @@ export function CreateTransactionScreen({ navigation }) {
                 />
 
                 <TextInput
-                  value={itemInput.quantity}
+                  value={String(itemInput.quantity)}
                   onChangeText={(quantity) =>
-                    setItemInput((prev) => ({ ...prev, quantity: quantity }))
+                    setItemInput((prev) => ({ ...prev, quantity }))
                   }
                   style={{ backgroundColor: "#ffffff", flex: 1 }}
                   placeholder="Qty"
@@ -266,7 +315,6 @@ export function CreateTransactionScreen({ navigation }) {
               </Button>
             </View>
 
-            {/* Items List */}
             {transaction.items.map((item, index) => (
               <Surface
                 key={index}
@@ -302,7 +350,6 @@ export function CreateTransactionScreen({ navigation }) {
           </Surface>
         </View>
 
-        {/* Total Price and Tax */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Surface
             style={{
@@ -319,9 +366,9 @@ export function CreateTransactionScreen({ navigation }) {
               }}
             >
               <TextInput
-                value={transaction.tax}
+                value={String(transaction.tax)}
                 onChangeText={(tax) =>
-                  setTransaction((prev) => ({ ...prev, tax: +tax }))
+                  setTransaction((prev) => ({ ...prev, tax }))
                 }
                 style={{ backgroundColor: "#ffffff", flex: 1, marginRight: 8 }}
                 placeholder="Tax"
@@ -349,13 +396,12 @@ export function CreateTransactionScreen({ navigation }) {
           </Surface>
         </View>
 
-        {/* Submit Button */}
         <View style={{ padding: 20 }}>
           <Button
             mode="contained"
-            onPress={() => {
-              console.log(transaction);
-            }}
+            onPress={createTransactionHandler}
+            loading={mutationLoading}
+            disabled={mutationLoading}
             style={{
               backgroundColor: "#ffffff",
               padding: 8,

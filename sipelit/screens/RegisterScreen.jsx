@@ -13,25 +13,23 @@ export function RegisterScreen({ navigation }) {
     password: "",
   });
 
-  const [Register] = useMutation(register, {
-    onCompleted: (data) => {
+  const [Register, { data }] = useMutation(register);
+
+  const handleSignUp = async () => {
+    try {
+      Register({
+        variables: {
+          name: form.name,
+          username: form.username,
+          email: form.email,
+          password: form.password,
+        },
+      });
       Alert.alert("Success", data.register);
       navigation.navigate("LoginScreen");
-    },
-    onError: (error) => {
+    } catch (error) {
       Alert.alert("Error", error.message);
-    },
-  });
-
-  const handleSignUp = () => {
-    Register({
-      variables: {
-        name: form.name,
-        username: form.username,
-        email: form.email,
-        password: form.password,
-      },
-    });
+    }
   };
 
   return (
@@ -45,7 +43,6 @@ export function RegisterScreen({ navigation }) {
             paddingVertical: 40,
           }}
         >
-    
           <View style={{ alignItems: "center", marginBottom: 20 }}>
             <Text
               style={{

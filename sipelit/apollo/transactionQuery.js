@@ -13,16 +13,35 @@ export const getTransactions = gql`
   }
 `;
 export const createTransaction = gql`
-  query GetTransactions {
-    getTransactions {
+ mutation createTransaction($name: String, $userId: ID, $category: String, $items: [ItemInput], $totalPrice: Float, $tax: Int) {
+  createTransaction(name: $name, userId: $userId, category: $category, items: $items, totalPrice: $totalPrice, tax: $tax) {
+    name
+    category
+    tax
+    totalPrice
+    userId
+    createdAt
+    updatedAt
+    items {
+      name
+      price
+      quantity
+    }
+    userTransaction {
       _id
       name
-      category
+      items {
+        name
+        price
+        quantity
+      }
       totalPrice
       userId
       createdAt
+      updatedAt
     }
   }
+}
 `;
 export const getTransactionById = gql`
   query GetTransactionById($id: ID) {
