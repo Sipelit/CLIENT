@@ -1,3 +1,4 @@
+import { useQuery } from "@apollo/client";
 import React, { useState } from "react";
 import { View, ScrollView, Alert } from "react-native";
 import {
@@ -7,9 +8,9 @@ import {
   Surface,
   IconButton,
 } from "react-native-paper";
+import { getTransactionById } from "../apollo/transactionQuery";
 
-export function AssignPeopleScreen({ navigation }) {
-  // Hardcoded transaction data
+export function AssignPeopleScreen({ route, navigation }) {
   const [transactionItems, setTransactionItems] = useState({
     category: "Food",
     items: [
@@ -32,6 +33,17 @@ export function AssignPeopleScreen({ navigation }) {
     totalPrice: 36000,
     tax: 10,
   });
+
+  // const { id } = route.params;
+
+  const id = "6721e9e20790e60bb0feb8cd";
+  const { data, loading, error } = useQuery(getTransactionById, {
+    variables: {
+      id
+    },
+  });
+  console.log(data.getTransactionById);
+  
 
   const [people, setPeople] = useState([]);
   const [newPersonName, setNewPersonName] = useState("");

@@ -3,7 +3,7 @@ import { SafeAreaView, Alert, View, ScrollView } from "react-native";
 import { TextInput, Button, Text, Surface } from "react-native-paper";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useMutation } from "@apollo/client";
-import { register } from "../apollo/operations"; // Assuming you have this query
+import { register } from "../apollo/operations";
 
 export function RegisterScreen({ navigation }) {
   const [form, setForm] = useState({
@@ -13,22 +13,23 @@ export function RegisterScreen({ navigation }) {
     password: "",
   });
 
-  const [Register] = useMutation(register, {
-    onCompleted: (data) => {
+  const [Register, { data }] = useMutation(register);
+
+  const handleSignUp = async () => {
+    try {
+      await Register({
+        variables: {
+          name: form.name,
+          username: form.username,
+          email: form.email,
+          password: form.password,
+        },
+      });
       Alert.alert("Success", data.register);
       navigation.navigate("LoginScreen");
-    },
-    onError: (error) => {
+    } catch (error) {
       Alert.alert("Error", error.message);
-    },
-  });
-
-  const handleSignUp = () => {
-    Register({
-      variables: {
-        body: form,
-      },
-    });
+    }
   };
 
   return (
@@ -42,7 +43,6 @@ export function RegisterScreen({ navigation }) {
             paddingVertical: 40,
           }}
         >
-          {/* Welcome Section */}
           <View style={{ alignItems: "center", marginBottom: 20 }}>
             <Text
               style={{
@@ -70,8 +70,6 @@ export function RegisterScreen({ navigation }) {
               </Text>
             </View>
           </View>
-
-          {/* Registration Form Card */}
           <Surface
             style={{
               backgroundColor: "#ffffff",
@@ -140,11 +138,16 @@ export function RegisterScreen({ navigation }) {
             </Button>
           </Surface>
 
-          
-
-          {/* Copyright */}
+          {/* Already have an account? */}
           <View style={{ alignItems: "center" }}>
-          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16, marginTop: 8 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 16,
+                marginTop: 8,
+              }}
+            >
               <Text style={{ color: "#F3F4F6", fontSize: 14 }}>
                 Already have an account?
               </Text>
@@ -155,7 +158,7 @@ export function RegisterScreen({ navigation }) {
                   color: "#F3F4F6",
                   fontSize: 14,
                   fontWeight: "700",
-                  marginTop: 10
+                  marginTop: 10,
                 }}
               >
                 Login

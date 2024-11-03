@@ -1,57 +1,56 @@
-import React, { useState } from "react";
-import { SafeAreaView, Alert, View, Image } from "react-native";
+import React, { useState, useContext } from "react";
+import { SafeAreaView, Alert, View } from "react-native";
 import { TextInput, Button, Text, Surface } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import { useMutation } from "@apollo/client";
+import { AuthContext } from "../contexts/authContext";
 import { login } from "../apollo/operations";
 
 export function LoginScreen({ navigation }) {
-  const [loginUser] = useMutation(login);
+  const { setIsLoggedIn } = useContext(AuthContext);
   const [form, setForm] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
-  const handleLogin = async () => {
+  const [Login] = useMutation(login);
+
+  const handleLogin = async () => { 
     try {
-      const { data } = await loginUser({
-        variables: { body: form },
+      const { data } = await Login({
+        variables: {
+          username: form.username,
+          password: form.password,
+        },
       });
-      const token = data.login.accessToken;
-      await SecureStore.setItemAsync("accessToken", token);
+
+      if (data && data.login && data.login.token) {
+        const token = data.login.token;
+        await SecureStore.setItemAsync("access_token", token);
+
+        const user = {
+          username: data.login.username,
+          _id: data.login._id,
+        };
+
+        await SecureStore.setItemAsync("userId", JSON.stringify(user));
+        setIsLoggedIn(true);
+      } else {
+        Alert.alert("Login Failed", "Unexpected response from server");
+      }
     } catch (error) {
+      console.log(error, "kenapaaaaaaaa");
       Alert.alert("Login Failed", error.message);
     }
   };
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: "#145da0",
-      }}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#145da0" }}>
       <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          paddingHorizontal: 24,
-        }}
+        style={{ flex: 1, justifyContent: "center", paddingHorizontal: 24 }}
       >
-        {/* Logo and Welcome Section */}
-        <View
-          style={{
-            alignItems: "center",
-            marginBottom: 40,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: "bold",
-              color: "#ffff",
-            }}
-          >
+        <View style={{ alignItems: "center", marginBottom: 40 }}>
+          <Text style={{ fontSize: 16, fontWeight: "bold", color: "#ffff" }}>
             Sipelit.
           </Text>
           <Text
@@ -64,18 +63,11 @@ export function LoginScreen({ navigation }) {
           >
             Welcome Back!
           </Text>
-          <Text
-            style={{
-              color: "#F3F4F6",
-              fontSize: 16,
-              opacity: 0.8,
-            }}
-          >
+          <Text style={{ color: "#F3F4F6", fontSize: 16, opacity: 0.8 }}>
             Sign in to continue
           </Text>
         </View>
 
-        {/* Login Form Card */}
         <Surface
           style={{
             backgroundColor: "#ffffff",
@@ -85,15 +77,12 @@ export function LoginScreen({ navigation }) {
           }}
         >
           <TextInput
-            label="Email"
-            value={form.email}
-            onChangeText={(text) => setForm({ ...form, email: text })}
-            keyboardType="email-address"
+            label="Username"
+            value={form.username}
+            onChangeText={(text) => setForm({ ...form, username: text })}
+            keyboardType="text"
             mode="outlined"
-            style={{
-              backgroundColor: "#ffffff",
-              marginBottom: 16,
-            }}
+            style={{ backgroundColor: "#ffffff", marginBottom: 16 }}
             outlineColor="#E5E7EB"
             activeOutlineColor="#145da0"
             theme={{ colors: { primary: "#145da0" } }}
@@ -103,12 +92,9 @@ export function LoginScreen({ navigation }) {
             label="Password"
             value={form.password}
             onChangeText={(text) => setForm({ ...form, password: text })}
-            secureTextEntry={true}
+            secureTextEntry
             mode="outlined"
-            style={{
-              backgroundColor: "#ffffff",
-              marginBottom: 24,
-            }}
+            style={{ backgroundColor: "#ffffff", marginBottom: 24 }}
             outlineColor="#E5E7EB"
             activeOutlineColor="#145da0"
             theme={{ colors: { primary: "#145da0" } }}
@@ -122,16 +108,11 @@ export function LoginScreen({ navigation }) {
               backgroundColor: "#145da0",
               borderRadius: 12,
             }}
-            labelStyle={{
-              fontSize: 16,
-              fontWeight: "600",
-            }}
+            labelStyle={{ fontSize: 16, fontWeight: "600" }}
           >
             Sign In
           </Button>
         </Surface>
-
-        {/* Register Link */}
         <View
           style={{
             flexDirection: "row",
@@ -140,12 +121,7 @@ export function LoginScreen({ navigation }) {
             marginTop: 16,
           }}
         >
-          <Text
-            style={{
-              color: "#F3F4F6",
-              fontSize: 14,
-            }}
-          >
+          <Text style={{ color: "#F3F4F6", fontSize: 14 }}>
             Don't have an account?
           </Text>
           <Button
