@@ -1,5 +1,5 @@
-import { useQuery } from "@apollo/client";
-import React, { useState } from "react";
+import { useMutation, useQuery } from "@apollo/client";
+import React, { useState, useEffect } from "react";
 import { View, ScrollView, Alert } from "react-native";
 import {
   Text,
@@ -9,46 +9,49 @@ import {
   IconButton,
 } from "react-native-paper";
 import { getTransactionById } from "../apollo/transactionQuery";
+import { CREATE_USER_TRANSACTION } from "../apollo/userTransactionQuery";
 
 export function AssignPeopleScreen({ route, navigation }) {
-  // const [transactionItems, setTransactionItems] = useState({
-  //   category: "Food",
-  //   items: [
-  //     {
-  //       name: "Kopi susu",
-  //       price: 8000,
-  //       quantity: 3,
-  //       remainingQuantity: 3,
-  //       totalPrice: 24000,
-  //     },
-  //     {
-  //       name: "Kopi Oatside",
-  //       price: 12000,
-  //       quantity: 1,
-  //       remainingQuantity: 1,
-  //       totalPrice: 12000,
-  //     },
-  //   ],
-  //   name: "Hacktiv8",
-  //   totalPrice: 36000,
-  //   tax: 10,
-  // });
+  const [createUserTransaction] = useMutation(CREATE_USER_TRANSACTION);
 
-  const { id } = route.params;
-
-  // const id = "6721e9e20790e60bb0feb8cd";
+  // const { id } = route.params
+  const id = "6721e9e20790e60bb0feb8cd";
   const { data, loading, error } = useQuery(getTransactionById, {
     variables: {
-      id
+      id,
     },
   });
-  // console.log(data.getTransactionById);
-  
 
   const [people, setPeople] = useState([]);
   const [newPersonName, setNewPersonName] = useState("");
-
   const [itemAssignments, setItemAssignments] = useState([]);
+  const [remainingQuantities, setRemainingQuantities] = useState({});
+
+  useEffect(() => {
+    if (data?.getTransactionById) {
+      const quantities = {};
+      data.getTransactionById.items.forEach((item, index) => {
+        quantities[index] = item.quantity;
+      });
+      setRemainingQuantities(quantities);
+    }
+  }, [data]);
+
+  if (loading)
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+
+  if (error)
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Error: {error.message}</Text>
+      </View>
+    );
+
+  const transactionItems = data.getTransactionById;
 
   const addPerson = () => {
     if (newPersonName) {
@@ -64,43 +67,32 @@ export function AssignPeopleScreen({ route, navigation }) {
   };
 
   const addItemAssignment = (itemIndex, personId) => {
-    const item = transactionItems.items[itemIndex];
-
-    if (item.remainingQuantity > 0) {
+    if (remainingQuantities[itemIndex] > 0) {
       setItemAssignments((prev) => [
         ...prev,
         {
           itemIndex,
           personId,
-          itemName: item.name,
-          price: item.price,
+          itemName: transactionItems.items[itemIndex].name,
+          price: transactionItems.items[itemIndex].price,
           quantity: 1,
         },
       ]);
 
-      setTransactionItems((prev) => {
-        const updatedItems = [...prev.items];
-        updatedItems[itemIndex] = {
-          ...updatedItems[itemIndex],
-          remainingQuantity: updatedItems[itemIndex].remainingQuantity - 1,
-        };
-        return { ...prev, items: updatedItems };
-      });
+      setRemainingQuantities((prev) => ({
+        ...prev,
+        [itemIndex]: prev[itemIndex] - 1,
+      }));
     }
   };
 
   const removeItemAssignment = (assignmentIndex) => {
     const assignment = itemAssignments[assignmentIndex];
 
-    setTransactionItems((prev) => {
-      const updatedItems = [...prev.items];
-      updatedItems[assignment.itemIndex] = {
-        ...updatedItems[assignment.itemIndex],
-        remainingQuantity:
-          updatedItems[assignment.itemIndex].remainingQuantity + 1,
-      };
-      return { ...prev, items: updatedItems };
-    });
+    setRemainingQuantities((prev) => ({
+      ...prev,
+      [assignment.itemIndex]: prev[assignment.itemIndex] + 1,
+    }));
 
     setItemAssignments((prev) =>
       prev.filter((_, index) => index !== assignmentIndex)
@@ -124,17 +116,11 @@ export function AssignPeopleScreen({ route, navigation }) {
       (assignment) => assignment.personId === personId
     );
 
+    const updatedQuantities = { ...remainingQuantities };
     personAssignments.forEach((assignment) => {
-      setTransactionItems((prev) => {
-        const updatedItems = [...prev.items];
-        updatedItems[assignment.itemIndex] = {
-          ...updatedItems[assignment.itemIndex],
-          remainingQuantity:
-            updatedItems[assignment.itemIndex].remainingQuantity + 1,
-        };
-        return { ...prev, items: updatedItems };
-      });
+      updatedQuantities[assignment.itemIndex] += 1;
     });
+    setRemainingQuantities(updatedQuantities);
 
     setItemAssignments((prev) =>
       prev.filter((assignment) => assignment.personId !== personId)
@@ -143,7 +129,7 @@ export function AssignPeopleScreen({ route, navigation }) {
     setPeople((prev) => prev.filter((person) => person.id !== personId));
   };
 
-  const handleConfirmSplit = () => {
+  const handleConfirmSplit = async () => {
     const userTransactions = people.map((person) => ({
       name: person.name,
       items: itemAssignments
@@ -161,6 +147,7 @@ export function AssignPeopleScreen({ route, navigation }) {
           }
           return acc;
         }, []),
+      transactionId: id,
       totalPrice: calculatePersonTotal(person.id),
       userId: person.id.toString(),
     }));
@@ -175,6 +162,18 @@ export function AssignPeopleScreen({ route, navigation }) {
 
     if (totalAssignedQuantity < totalOriginalQuantity) {
       Alert.alert("Warning: Not all items have been assigned!");
+      return;
+    }
+
+    try {
+      const response = await createUserTransaction({
+        variables: { userTransactions },
+      });
+      console.log("Transaction added:", response.data);
+      Alert.alert("Success", "User transactions have been saved.");
+    } catch (err) {
+      console.error("Error adding transaction:", err);
+      Alert.alert("Error", "Failed to save user transactions.");
     }
   };
 
@@ -317,7 +316,7 @@ export function AssignPeopleScreen({ route, navigation }) {
                       style: "currency",
                       currency: "IDR",
                     }).format(item.price)}{" "}
-                    x {item.remainingQuantity} remaining
+                    x {remainingQuantities[itemIndex]} remaining
                   </Text>
                 </View>
 
@@ -335,7 +334,7 @@ export function AssignPeopleScreen({ route, navigation }) {
                       labelStyle={{
                         color: "#145da0",
                       }}
-                      disabled={item.remainingQuantity === 0}
+                      disabled={remainingQuantities[itemIndex] === 0}
                     >
                       {person.name}
                     </Button>

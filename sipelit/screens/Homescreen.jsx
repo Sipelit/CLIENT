@@ -28,6 +28,7 @@ export function HomeScreen({ navigation }) {
     },
   });
 
+  
   const [total, setTotal] = useState(0);
   const [status, requestPermission] = MediaLibrary.usePermissions(true);
   const [requestPermissions, setRequestPermissions] = useState(true);
