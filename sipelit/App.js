@@ -15,10 +15,10 @@ import { AssignPeopleScreen } from "./screens/AssignPeopleScreen";
 import { ReceiptScreen } from "./screens/ReceiptScreen";
 import { RegisterScreen } from "./screens/RegisterScreen";
 import { LoginScreen } from "./screens/LoginScreen";
+import OcrScreen from "./screens/OCRScreen";
 import { getUserById } from "./apollo/userQuery";
 
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
-import OcrScreen from "./screens/OCRScreen";
 
 if (__DEV__) {
   // Adds messages only in a dev environment
@@ -52,10 +52,15 @@ function BottomTab() {
         component={ReceiptScreen}
         options={{ headerShown: false }}
       />
+      <Tab.Screen
+        name="OCRScreen"
+        component={OcrScreen}
+        options={{ headerShown: false }}
+      />
     </Tab.Navigator>
   );
 }
-
+ 
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>

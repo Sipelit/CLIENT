@@ -39,6 +39,7 @@ export function LoginScreen({ navigation }) {
         Alert.alert("Login Failed", "Unexpected response from server");
       }
     } catch (error) {
+      console.log(error, "kenapaaaaaaaa");
       Alert.alert("Login Failed", error.message);
     }
   };
