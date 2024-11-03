@@ -11,38 +11,38 @@ import {
 import { getTransactionById } from "../apollo/transactionQuery";
 
 export function AssignPeopleScreen({ route, navigation }) {
-  const [transactionItems, setTransactionItems] = useState({
-    category: "Food",
-    items: [
-      {
-        name: "Kopi susu",
-        price: 8000,
-        quantity: 3,
-        remainingQuantity: 3,
-        totalPrice: 24000,
-      },
-      {
-        name: "Kopi Oatside",
-        price: 12000,
-        quantity: 1,
-        remainingQuantity: 1,
-        totalPrice: 12000,
-      },
-    ],
-    name: "Hacktiv8",
-    totalPrice: 36000,
-    tax: 10,
-  });
+  // const [transactionItems, setTransactionItems] = useState({
+  //   category: "Food",
+  //   items: [
+  //     {
+  //       name: "Kopi susu",
+  //       price: 8000,
+  //       quantity: 3,
+  //       remainingQuantity: 3,
+  //       totalPrice: 24000,
+  //     },
+  //     {
+  //       name: "Kopi Oatside",
+  //       price: 12000,
+  //       quantity: 1,
+  //       remainingQuantity: 1,
+  //       totalPrice: 12000,
+  //     },
+  //   ],
+  //   name: "Hacktiv8",
+  //   totalPrice: 36000,
+  //   tax: 10,
+  // });
 
-  // const { id } = route.params;
+  const { id } = route.params;
 
-  const id = "6721e9e20790e60bb0feb8cd";
+  // const id = "6721e9e20790e60bb0feb8cd";
   const { data, loading, error } = useQuery(getTransactionById, {
     variables: {
       id
     },
   });
-  console.log(data.getTransactionById);
+  // console.log(data.getTransactionById);
   
 
   const [people, setPeople] = useState([]);
