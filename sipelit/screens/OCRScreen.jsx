@@ -1,24 +1,26 @@
-// src/screens/OcrScreen.js
-import React, { useState, useEffect } from 'react';
-import { View, Button, Image, Text, StyleSheet, ScrollView } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import React, { useState, useEffect } from "react";
+import { SafeAreaView, View, Image, Alert, ScrollView } from "react-native";
+import { Button, Text, Surface } from "react-native-paper";
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 
 const OcrScreen = () => {
-  const [imageUri, setImageUri] = useState(null); 
-  const [ocrResult, setOcrResult] = useState('');
+  const [imageUri, setImageUri] = useState(null);
+  const [ocrResult, setOcrResult] = useState("");
 
   useEffect(() => {
     const requestPermissions = async () => {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Permission to access camera is required!');
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Permission to access camera is required!"
+        );
       }
     };
     requestPermissions();
   }, []);
 
-  // Function to take a new photo
   const takePhoto = async () => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
@@ -30,7 +32,6 @@ const OcrScreen = () => {
     }
   };
 
-  // Function to pick an image from the gallery
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -43,26 +44,23 @@ const OcrScreen = () => {
     }
   };
 
-  // Function to perform OCR using Google Vision API
   const performOcr = async () => {
     if (!imageUri) {
-      alert('Please select an image first');
+      Alert.alert("Error", "Please select an image first");
       return;
     }
     try {
-      // Convert image to base64
       const base64Image = await FileSystem.readAsStringAsync(imageUri, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      // Call Google Vision API
-      const apiKey = 'AIzaSyC-KckZmKIdwqoNz6PT8xpmaWVXPqWq7-Y'; 
+      const apiKey = "AIzaSyC-KckZmKIdwqoNz6PT8xpmaWVXPqWq7-Y";
       const response = await fetch(
         `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             requests: [
@@ -72,7 +70,7 @@ const OcrScreen = () => {
                 },
                 features: [
                   {
-                    type: 'DOCUMENT_TEXT_DETECTION', 
+                    type: "DOCUMENT_TEXT_DETECTION",
                     maxResults: 20,
                   },
                 ],
@@ -83,63 +81,130 @@ const OcrScreen = () => {
       );
 
       const data = await response.json();
-      // console.log(data); 
 
-      // Check different fields in the response for detected text
       if (data.responses && data.responses[0].fullTextAnnotation) {
         setOcrResult(data.responses[0].fullTextAnnotation.text);
       } else if (data.responses && data.responses[0].textAnnotations) {
         setOcrResult(data.responses[0].textAnnotations[0].description);
       } else {
-        alert('No text detected in the image.');
+        Alert.alert("No text detected in the image.");
       }
+
+      console.log(ocrResult);
     } catch (error) {
       console.error(error);
-      alert('An error occurred while processing the image.');
+      Alert.alert("An error occurred while processing the image.");
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-    <View style={styles.container}>
-      <Text style={styles.title}>OCR Photo Capture</Text>
-      <Text style={styles.description}>Capture a photo or pick an image to extract text.</Text>
-      
-      <View style={styles.buttonContainer}>
-        <Button title="Take a Photo" onPress={takePhoto} color="#145da0" />
-        <Button title="Pick an Image" onPress={pickImage} color="#145da0" />
-      </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#145da0" }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          paddingVertical: 16,
+          marginTop: 80,
+        }}
+      >
+        <View style={{ alignItems: "center", marginBottom: 20 }}>
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: "bold",
+              color: "#ffffff",
+              marginBottom: 8,
+            }}
+          >
+            Camera Scanner
+          </Text>
+          <Text
+            style={{
+              color: "#F3F4F6",
+              fontSize: 16,
+              opacity: 0.8,
+              textAlign: "center",
+            }}
+          >
+            Capture a photo or pick an image to generate transaction.
+          </Text>
+        </View>
 
-      {imageUri && (
-        <Image source={{ uri: imageUri }} style={styles.image} />
-      )}
-      
-      <Button title="Submit" onPress={performOcr} color="#ffcc00" />
-      
-      {ocrResult ? (
-        <Text style={styles.resultText}>{ocrResult}</Text>
-      ) : null}
-    </View>
-  </ScrollView>
+        <Surface
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: 24,
+            padding: 24,
+            elevation: 4,
+            alignItems: "center",
+          }}
+        >
+          {imageUri && (
+            <Image
+              source={{ uri: imageUri }}
+              style={{
+                width: "100%",
+                height: 350,
+                marginVertical: 20,
+                borderRadius: 8,
+              }}
+            />
+          )}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+              marginBottom: 8,
+            }}
+          >
+            <Button
+              mode="contained"
+              onPress={takePhoto}
+              style={{
+                flex: 1,
+                marginHorizontal: 4,
+                paddingVertical: 6,
+                backgroundColor: "#145da0",
+                borderRadius: 12,
+              }}
+              labelStyle={{ fontSize: 14, fontWeight: "600", color: "#ffffff" }}
+            >
+              Take a Photo
+            </Button>
+            <Button
+              mode="contained"
+              onPress={pickImage}
+              style={{
+                flex: 1,
+                marginHorizontal: 4,
+                paddingVertical: 6,
+                backgroundColor: "#145da0",
+                borderRadius: 12,
+              }}
+              labelStyle={{ fontSize: 14, fontWeight: "600", color: "#ffffff" }}
+            >
+              Pick an Image
+            </Button>
+          </View>
+
+          <Button
+            mode="contained"
+            onPress={performOcr}
+            style={{
+              paddingVertical: 6,
+              backgroundColor: "#145da0",
+              borderRadius: 12,
+              width: "100%",
+              marginVertical: 8,
+            }}
+            labelStyle={{ fontSize: 16, fontWeight: "600", color: "#ffffff" }}
+          >
+            Submit
+          </Button>
+        </Surface>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  image: {
-    width: 200,
-    height: 200,
-    marginVertical: 20,
-  },
-  resultText: {
-    marginTop: 20,
-    fontSize: 16,
-    textAlign: 'center',
-  },
-});
 
 export default OcrScreen;
