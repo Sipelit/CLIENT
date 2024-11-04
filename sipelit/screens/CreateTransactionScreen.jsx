@@ -338,7 +338,7 @@ export function CreateTransactionScreen({ navigation }) {
               }}
             >
               <TextInput
-                value={String(transaction.tax)}
+                value={Number(transaction.tax)}
                 onChangeText={(tax) =>
                   setTransaction((prev) => ({ ...prev, tax }))
                 }

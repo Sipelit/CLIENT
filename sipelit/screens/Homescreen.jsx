@@ -28,10 +28,9 @@ export function HomeScreen({ navigation }) {
     },
   });
 
+  
   const [total, setTotal] = useState(0);
-  // const { setIsLogin } = useContext(AuthContext);
   const [status, requestPermission] = MediaLibrary.usePermissions(true);
-  //testing permission. comment before launch
   const [requestPermissions, setRequestPermissions] = useState(true);
 
   const calculateTotal = () => {
@@ -46,7 +45,6 @@ export function HomeScreen({ navigation }) {
     await SecureStore.deleteItemAsync("access_token");
     await SecureStore.deleteItemAsync("userId");
     setRequestPermissions(true);
-    // setIsLogin(false);
     setIsLoggedIn(false);
     navigation.navigate("LoginScreen");
   };

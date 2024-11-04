@@ -23,7 +23,7 @@ export function LoginScreen({ navigation }) {
           password: form.password,
         },
       });
-
+      
       if (data && data.login && data.login.token) {
         const token = data.login.token;
         await SecureStore.setItemAsync("access_token", token);
