@@ -10,15 +10,23 @@ import {
   IconButton,
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { createTransaction } from "../apollo/transactionQuery";
+import {
+  createTransaction,
+  getTransactionById,
+  getTransactions,
+} from "../apollo/transactionQuery";
 
 export function CreateTransactionScreen({ navigation }) {
+  const { currentUser } = useContext(AuthContext);
   const [
     createNewTransaction,
     { data: mutationData, loading: mutationLoading, error: mutationError },
-  ] = useMutation(createTransaction);
-
-  const { currentUser } = useContext(AuthContext);
+  ] = useMutation(createTransaction, {
+    refetchQueries: [
+      { query: getTransactions, variables: { userId: currentUser._id } },
+      { query: getTransactionById, variables: { id: mutationData?._id } },
+    ],
+  });
 
   const [transaction, setTransaction] = useState({
     name: "",
@@ -84,6 +92,7 @@ export function CreateTransactionScreen({ navigation }) {
 
   const createTransactionHandler = async () => {
     try {
+      transaction.tax = Number(transaction.tax);
       const { data } = await createNewTransaction({
         variables: transaction,
       });

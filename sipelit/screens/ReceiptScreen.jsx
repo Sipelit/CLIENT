@@ -4,13 +4,15 @@ import { Text, Surface, Button } from "react-native-paper";
 import { captureRef } from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
+import { useQuery } from "@apollo/client";
+import { getTransactionById } from "../apollo/transactionQuery";
 
 export function ReceiptScreen({ navigation, route }) {
   const mockData = {
     merchantName: "Hacktiv8",
     date: new Date(),
     transactionId: "TRX-001",
-    splits: {
+    users: {
       1: {
         name: "Bryan",
         items: {
@@ -44,6 +46,24 @@ export function ReceiptScreen({ navigation, route }) {
     tax: 10,
     originalTotal: 36000,
   };
+
+  const transactionId = "67285235d0683aad2fb2d258";
+  // const transactionId = route.params.transactionId;
+  const { data, loading, error, refetch } = useQuery(getTransactionById, {
+    variables: {
+      id: transactionId,
+    },
+  });
+
+  const createdAt = data.getTransactionById?.createdAt;
+  const formattedDate = createdAt
+    ? new Intl.DateTimeFormat("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        timeZone: "Asia/Jakarta",
+      }).format(new Date(createdAt))
+    : "";
 
   const imageRef = useRef();
   const onSaveImageAsync = async () => {
@@ -115,13 +135,13 @@ export function ReceiptScreen({ navigation, route }) {
               <Text
                 style={{ fontSize: 24, fontWeight: "bold", color: "#145da0" }}
               >
-                {mockData.merchantName}
+                {data.getTransactionById?.name}
               </Text>
               <Text style={{ color: "#6b7280", marginTop: 4 }}>
-                {mockData.date.toLocaleString()}
+                {formattedDate}
               </Text>
               <Text style={{ color: "#6b7280" }}>
-                Transaction ID: {mockData.transactionId}
+                Transaction ID: {data.getTransactionById?._id}
               </Text>
               <View
                 style={{
@@ -135,114 +155,120 @@ export function ReceiptScreen({ navigation, route }) {
             </View>
 
             {/* Split Details */}
-            {Object.values(mockData.splits).map((split) => (
-              <View key={split.userId} style={{ marginBottom: 24 }}>
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "600",
-                    color: "#145da0",
-                    marginBottom: 8,
-                  }}
-                >
-                  {split.name}'s Portion
-                </Text>
-
-                {/* Items */}
-                {Object.values(split.items).map((item) => (
-                  <View
-                    key={item.name}
+            {data.getTransactionById &&
+              data.getTransactionById?.userTransaction?.map((user) => (
+                <View key={user.userId} style={{ marginBottom: 24 }}>
+                  <Text
                     style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      marginBottom: 4,
+                      fontSize: 18,
+                      fontWeight: "600",
+                      color: "#145da0",
+                      marginBottom: 8,
                     }}
                   >
-                    <View style={{ flex: 1 }}>
+                    {user.name}'s Portion
+                  </Text>
+
+                  {/* Items */}
+                  {Object.values(user.items).map((item) => (
+                    <View
+                      key={item.name}
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginBottom: 4,
+                      }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: "#374151" }}>
+                          {item.name} x{item.quantity}
+                        </Text>
+                      </View>
                       <Text style={{ color: "#374151" }}>
-                        {item.name} x{item.quantity}
+                        {Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                        }).format(item.price * item.quantity)}
                       </Text>
                     </View>
-                    <Text style={{ color: "#374151" }}>
-                      {Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                      }).format(item.price * item.quantity)}
-                    </Text>
-                  </View>
-                ))}
+                  ))}
 
-                {/* Subtotal */}
-                <View
-                  style={{
-                    borderTopWidth: 1,
-                    borderColor: "#e5e7eb",
-                    marginTop: 8,
-                    paddingTop: 8,
-                  }}
-                >
+                  {/* Subtotal */}
                   <View
                     style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Text style={{ color: "#6b7280" }}>Subtotal</Text>
-                    <Text style={{ color: "#6b7280" }}>
-                      {Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                      }).format(split.totalPrice / (1 + mockData.tax / 100))}
-                    </Text>
-                  </View>
-
-                  {/* Tax */}
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      marginTop: 4,
-                    }}
-                  >
-                    <Text style={{ color: "#6b7280" }}>
-                      Tax ({mockData.tax}%)
-                    </Text>
-                    <Text style={{ color: "#6b7280" }}>
-                      {Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                      }).format(
-                        split.totalPrice -
-                          split.totalPrice / (1 + mockData.tax / 100)
-                      )}
-                    </Text>
-                  </View>
-
-                  {/* Total */}
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      marginTop: 8,
                       borderTopWidth: 1,
-                      borderStyle: "dashed",
-                      borderColor: "#cbd5e1",
+                      borderColor: "#e5e7eb",
+                      marginTop: 8,
                       paddingTop: 8,
                     }}
                   >
-                    <Text style={{ fontWeight: "600", color: "#145da0" }}>
-                      Total
-                    </Text>
-                    <Text style={{ fontWeight: "600", color: "#145da0" }}>
-                      {Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                      }).format(split.totalPrice)}
-                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text style={{ color: "#6b7280" }}>Subtotal</Text>
+                      <Text style={{ color: "#6b7280" }}>
+                        {Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                        }).format(user.totalPrice)}
+                      </Text>
+                    </View>
+
+                    {/* Tax */}
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginTop: 4,
+                      }}
+                    >
+                      <Text style={{ color: "#6b7280" }}>
+                        Tax ({data.getTransactionById?.tax}%)
+                      </Text>
+                      <Text style={{ color: "#6b7280" }}>
+                        {Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                        }).format(
+                          user.totalPrice -
+                            user.totalPrice /
+                              (1 + data.getTransactionById?.tax / 100)
+                        )}
+                      </Text>
+                    </View>
+
+                    {/* Total */}
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginTop: 8,
+                        borderTopWidth: 1,
+                        borderStyle: "dashed",
+                        borderColor: "#cbd5e1",
+                        paddingTop: 8,
+                      }}
+                    >
+                      <Text style={{ fontWeight: "600", color: "#145da0" }}>
+                        Total
+                      </Text>
+                      <Text style={{ fontWeight: "600", color: "#145da0" }}>
+                        {Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                        }).format(
+                          user.totalPrice +
+                            (user.totalPrice * data.getTransactionById?.tax) /
+                              100
+                        )}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-            ))}
+              ))}
 
             {/* Final Total */}
             <View
@@ -267,7 +293,10 @@ export function ReceiptScreen({ navigation, route }) {
                   {Intl.NumberFormat("id-ID", {
                     style: "currency",
                     currency: "IDR",
-                  }).format(mockData.originalTotal * (1 + mockData.tax / 100))}
+                  }).format(
+                    data.getTransactionById?.totalPrice *
+                      (1 + data.getTransactionById?.tax / 100)
+                  )}
                 </Text>
               </View>
             </View>

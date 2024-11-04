@@ -59,34 +59,34 @@ export const createTransaction = gql`
   }
 `;
 export const getTransactionById = gql`
-  query GetTransactionById($id: ID) {
-    getTransactionById(_id: $id) {
+query GetTransactionById($id: ID) {
+  getTransactionById(_id: $id) {
+    _id
+    userTransaction {
       _id
-      userTransaction {
-        _id
-        name
-        items {
-          name
-          price
-          quantity
-        }
-        totalPrice
-        userId
-        createdAt
-        updatedAt
-      }
       name
       items {
         name
         price
         quantity
       }
-      category
-      tax
       totalPrice
       userId
       createdAt
       updatedAt
     }
+    name
+    items {
+      name
+      price
+      quantity
+    }
+    category
+    tax
+    totalPrice
+    userId
+    createdAt
+    updatedAt
   }
+}
 `;

@@ -5,6 +5,16 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 export default function TransactionCard(props) {
   const item = props.item;
 
+  const createdAt = item?.createdAt;
+  const formattedDate = createdAt
+    ? new Intl.DateTimeFormat("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        timeZone: "Asia/Jakarta",
+      }).format(new Date(createdAt))
+    : "";
+
   return (
     <View
       style={{
@@ -30,9 +40,7 @@ export default function TransactionCard(props) {
         <Text style={{ color: "#051d40", fontSize: 16, fontWeight: "500" }}>
           {item.name}
         </Text>
-        <Text style={{ color: "#9CA3AF", fontSize: 14 }}>
-          {item.createdAt.slice(0, 10)}
-        </Text>
+        <Text style={{ color: "#9CA3AF", fontSize: 14 }}>{formattedDate}</Text>
       </View>
       <Text
         style={{

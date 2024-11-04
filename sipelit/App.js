@@ -60,13 +60,10 @@ function BottomTab() {
     </Tab.Navigator>
   );
 }
- 
+
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen          name="AssignPeopleScreen"
-        component={AssignPeopleScreen}/>
-
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
     </Stack.Navigator>

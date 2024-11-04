@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@apollo/client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, ScrollView, Alert } from "react-native";
 import {
   Text,
@@ -8,14 +8,24 @@ import {
   Surface,
   IconButton,
 } from "react-native-paper";
-import { getTransactionById } from "../apollo/transactionQuery";
+import {
+  getTransactionById,
+  getTransactions,
+} from "../apollo/transactionQuery";
 import { CREATE_USER_TRANSACTION } from "../apollo/userTransactionQuery";
+import { AuthContext } from "../contexts/authContext";
 
 export function AssignPeopleScreen({ route, navigation }) {
-  const [createUserTransaction] = useMutation(CREATE_USER_TRANSACTION);
+  const { currentUser } = useContext(AuthContext);
+  // const { id } = route.params;
+  const id = "67285235d0683aad2fb2d258";
+  const [createUserTransaction] = useMutation(CREATE_USER_TRANSACTION, {
+    refetchQueries: [
+      { query: getTransactions, variables: { userId: currentUser.id } },
+    ],
+    refetchQueries: [{ query: getTransactionById, variables: { id } }],
+  });
 
-  // const { id } = route.params
-  const id = "6721e9e20790e60bb0feb8cd";
   const { data, loading, error } = useQuery(getTransactionById, {
     variables: {
       id,
@@ -167,13 +177,15 @@ export function AssignPeopleScreen({ route, navigation }) {
     }
 
     try {
-      const response = await createUserTransaction({
+      await createUserTransaction({
         variables: { userTransactions },
       });
-      console.log("Transaction added:", response.data);
+
       Alert.alert("Success", "User transactions have been saved.");
+      navigation.navigate("ReceiptScreen", {
+        transactionId: id,
+      });
     } catch (err) {
-      console.error("Error adding transaction:", err);
       Alert.alert("Error", "Failed to save user transactions.");
     }
   };

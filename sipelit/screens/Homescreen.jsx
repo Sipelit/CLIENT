@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { View, ScrollView, Image, TouchableOpacity, Alert } from "react-native";
+import { View, ScrollView, Image, TouchableOpacity } from "react-native";
 import {
   Avatar,
   Card,
@@ -7,11 +7,9 @@ import {
   Searchbar,
   Surface,
   Divider,
-  Button,
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import TransactionCard from "../components/TransactionCard";
-import FAB from "../components/FAB";
 import { useQuery } from "@apollo/client";
 import { getTransactions } from "../apollo/transactionQuery";
 import * as SecureStore from "expo-secure-store";
@@ -58,7 +56,6 @@ export function HomeScreen({ navigation }) {
     refetch();
   }, [data]);
 
-  //permission
   useEffect(() => {
     if (status === null) {
       requestPermission({ accessPrivileges: "limited" });
