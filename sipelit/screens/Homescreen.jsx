@@ -21,13 +21,18 @@ import { getUserById } from "../apollo/userQuery";
 
 export function HomeScreen({ navigation }) {
   const { setIsLoggedIn, currentUser } = useContext(AuthContext);
-  const { data, error, loading, refetch } = useQuery(getTransactions);
+  const { data, error, loading, refetch } = useQuery(getTransactions, {
+    variables: {
+      userId: currentUser._id,
+    },
+  });
+
   const { data: user } = useQuery(getUserById, {
     variables: {
       id: currentUser._id,
     },
   });
-  
+
   const [total, setTotal] = useState(0);
   const [status, requestPermission] = MediaLibrary.usePermissions(true);
   const [requestPermissions, setRequestPermissions] = useState(true);
@@ -61,10 +66,9 @@ export function HomeScreen({ navigation }) {
     }
   }, [requestPermissions]);
 
-    const navigateToOcrScreen = () => {
-      navigation.navigate("OCRScreen");
-    };
-
+  const navigateToOcrScreen = () => {
+    navigation.navigate("OCRScreen");
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
@@ -195,8 +199,12 @@ export function HomeScreen({ navigation }) {
                   alignItems: "center",
                 }}
               >
-            
-                <Icon name={item?.icon} size={24} color="#145da0" onPress={item?.action} />
+                <Icon
+                  name={item?.icon}
+                  size={24}
+                  color="#145da0"
+                  onPress={item?.action}
+                />
               </View>
               <Text style={{ color: "#ffffff", fontSize: 12 }}>
                 {item?.label}

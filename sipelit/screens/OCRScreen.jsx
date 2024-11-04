@@ -192,7 +192,7 @@ const OcrScreen = () => {
             onPress={performOcr}
             style={{
               paddingVertical: 6,
-              backgroundColor: "#145da0",
+              backgroundColor: "#56aeff",
               borderRadius: 12,
               width: "100%",
               marginVertical: 8,

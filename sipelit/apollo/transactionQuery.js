@@ -1,16 +1,16 @@
 import { gql } from "@apollo/client";
 
 export const getTransactions = gql`
-  query GetTransactions {
-    getTransactions {
-      _id
-      name
-      category
-      totalPrice
-      userId
-      createdAt
-    }
+query GetTransactions($userId: ID) {
+  getTransactions(userId: $userId) {
+    _id
+    name
+    category
+    totalPrice
+    userId
+    createdAt
   }
+}
 `;
 export const createTransaction = gql`
   mutation createTransaction(

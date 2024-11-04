@@ -6,7 +6,6 @@ import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
 
 export function ReceiptScreen({ navigation, route }) {
-  // This would normally come from route.params
   const mockData = {
     merchantName: "Hacktiv8",
     date: new Date(),
@@ -21,7 +20,7 @@ export function ReceiptScreen({ navigation, route }) {
             quantity: 2,
           },
         },
-        totalPrice: 17600, // Including tax
+        totalPrice: 17600,
         userId: "1",
       },
       2: {
