@@ -13,9 +13,9 @@ const httpLink = new HttpLink({
   //kelvin
   // uri: "http://192.168.9.218:3000",
   
-  //indah
-  // uri: "192.168.8.157:3000",
-  
+  // indah
+  // uri: "http://192.168.8.157:3000",
+
   // cors: false,
 });
 

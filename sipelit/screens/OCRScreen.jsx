@@ -1,13 +1,12 @@
 // src/screens/OcrScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Button, Image, Text, StyleSheet } from 'react-native';
+import { View, Button, Image, Text, StyleSheet, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system'; // Import expo-file-system
-import Tesseract from 'tesseract.js';
+import * as FileSystem from 'expo-file-system';
 
 const OcrScreen = () => {
-  const [imageUri, setImageUri] = useState(null); // Menyimpan URI gambar
-  const [ocrResult, setOcrResult] = useState(''); // Menyimpan hasil OCR
+  const [imageUri, setImageUri] = useState(null); 
+  const [ocrResult, setOcrResult] = useState('');
 
   useEffect(() => {
     const requestPermissions = async () => {
@@ -19,28 +18,24 @@ const OcrScreen = () => {
     requestPermissions();
   }, []);
 
-  // Fungsi untuk mengambil foto baru
+  // Function to take a new photo
   const takePhoto = async () => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 1,
-   
     });
-    console.log("Camera result:", result); 
-  
 
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
     }
   };
 
-  // Fungsi untuk memilih gambar dari galeri
+  // Function to pick an image from the gallery
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
-   
     });
 
     if (!result.canceled) {
@@ -48,54 +43,84 @@ const OcrScreen = () => {
     }
   };
 
-  // Fungsi untuk menjalankan OCR
+  // Function to perform OCR using Google Vision API
   const performOcr = async () => {
     if (!imageUri) {
       alert('Please select an image first');
       return;
     }
     try {
-      const result = await MlkitOcr.detectFromUri(imageUri);
-      const text = result.map(block => block.text).join('\n');
-      setOcrResult(text); // Save the OCR result to display
+      // Convert image to base64
+      const base64Image = await FileSystem.readAsStringAsync(imageUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Call Google Vision API
+      const apiKey = 'AIzaSyC-KckZmKIdwqoNz6PT8xpmaWVXPqWq7-Y'; 
+      const response = await fetch(
+        `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            requests: [
+              {
+                image: {
+                  content: base64Image,
+                },
+                features: [
+                  {
+                    type: 'DOCUMENT_TEXT_DETECTION', 
+                    maxResults: 20,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+
+      const data = await response.json();
+      // console.log(data); 
+
+      // Check different fields in the response for detected text
+      if (data.responses && data.responses[0].fullTextAnnotation) {
+        setOcrResult(data.responses[0].fullTextAnnotation.text);
+      } else if (data.responses && data.responses[0].textAnnotations) {
+        setOcrResult(data.responses[0].textAnnotations[0].description);
+      } else {
+        alert('No text detected in the image.');
+      }
     } catch (error) {
       console.error(error);
       alert('An error occurred while processing the image.');
-    
-  };
-    // try {
-    //   // Konversi URI gambar ke format base64
-    //   const base64Image = await FileSystem.readAsStringAsync(imageUri, {
-    //     encoding: FileSystem.EncodingType.Base64,
-    //   });
-
-    //   // Jalankan OCR dengan Tesseract menggunakan gambar base64
-    //   const { data: { text } } = await Tesseract.recognize(
-    //     `data:image/jpeg;base64,${base64Image}`,
-    //     'eng',
-    //     {
-    //       logger: info => console.log(info) // Melacak proses OCR
-    //     }
-    //   );
-    //   setOcrResult(text); // Menyimpan hasil OCR
-    // } catch (error) {
-    //   console.error(error);
-    //   alert('An error occurred while processing the image.');
-    // }
+    }
   };
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
     <View style={styles.container}>
-      <Button title="Take a Photo" onPress={takePhoto} />
-      <Button title="Pick an Image" onPress={pickImage} />
+      <Text style={styles.title}>OCR Photo Capture</Text>
+      <Text style={styles.description}>Capture a photo or pick an image to extract text.</Text>
+      
+      <View style={styles.buttonContainer}>
+        <Button title="Take a Photo" onPress={takePhoto} color="#145da0" />
+        <Button title="Pick an Image" onPress={pickImage} color="#145da0" />
+      </View>
+
       {imageUri && (
         <Image source={{ uri: imageUri }} style={styles.image} />
       )}
-      <Button title="Submit" onPress={performOcr} />
+      
+      <Button title="Submit" onPress={performOcr} color="#ffcc00" />
+      
       {ocrResult ? (
         <Text style={styles.resultText}>{ocrResult}</Text>
       ) : null}
     </View>
+  </ScrollView>
   );
 };
 
