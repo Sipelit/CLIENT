@@ -142,6 +142,7 @@ export function AssignPeopleScreen({ route, navigation }) {
             acc.push({
               name: curr.itemName,
               price: curr.price,
+
               quantity: 1,
             });
           }

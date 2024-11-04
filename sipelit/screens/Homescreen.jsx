@@ -27,7 +27,6 @@ export function HomeScreen({ navigation }) {
       id: currentUser._id,
     },
   });
-
   
   const [total, setTotal] = useState(0);
   const [status, requestPermission] = MediaLibrary.usePermissions(true);
@@ -61,11 +60,7 @@ export function HomeScreen({ navigation }) {
       setRequestPermissions(false);
     }
   }, [requestPermissions]);
-  // console.log("🚀 ~ useEffect ~ status:", status);
-  // console.log("🚀 ~ useEffect ~ status:", status);
 
-
-  //Navigate to OCR
     const navigateToOcrScreen = () => {
       navigation.navigate("OCRScreen");
     };

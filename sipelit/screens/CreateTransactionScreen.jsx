@@ -1,4 +1,5 @@
 import { useMutation } from "@apollo/client";
+import { AuthContext } from "../contexts/authContext";
 import React, { useContext, useEffect, useState } from "react";
 import { View, ScrollView } from "react-native";
 import {
@@ -17,12 +18,15 @@ export function CreateTransactionScreen({ navigation }) {
     { data: mutationData, loading: mutationLoading, error: mutationError },
   ] = useMutation(createTransaction);
 
+  const { currentUser } = useContext(AuthContext);
+
   const [transaction, setTransaction] = useState({
     name: "",
     items: [],
     category: "",
     tax: 0,
     totalPrice: 0,
+    currentUser: currentUser._id,
   });
 
   const [itemInput, setItemInput] = useState({
