@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, act } from "react";
 import { View, ScrollView, Image, TouchableOpacity } from "react-native";
 import {
   Avatar,
@@ -63,13 +63,23 @@ export function HomeScreen({ navigation }) {
     }
   }, [requestPermissions]);
 
+  const navigateToCreateScreen = () => {
+    navigation.navigate("CreateTransactionScreen");
+  };
   const navigateToOcrScreen = () => {
     navigation.navigate("OCRScreen");
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
-      <View style={{ padding: 24, marginTop: 18 }}>
+      <View
+        style={{
+          paddingHorizontal: 24,
+          paddingTop: 24,
+          paddingBottom: 12,
+          marginTop: 18,
+        }}
+      >
         <View
           style={{
             flexDirection: "row",
@@ -97,7 +107,7 @@ export function HomeScreen({ navigation }) {
               onPress={handleLogout}
               style={{ marginRight: 16 }}
             >
-              <Icon name="logout" size={24} color="#ffffff" />
+              <Icon name="exit-to-app" size={28} color="#ED2939" />
             </TouchableOpacity>
             <Avatar.Image
               size={40}
@@ -136,7 +146,7 @@ export function HomeScreen({ navigation }) {
             >
               <Image
                 source={require("../assets/icon.png")}
-                style={{ width: 100, height: 30, marginTop: 10 }}
+                style={{ width: 100, height: 30, marginTop: 2 }}
               />
               <Surface
                 style={{
@@ -169,44 +179,40 @@ export function HomeScreen({ navigation }) {
         </Card>
       </View>
 
-      <View style={{ marginBottom: 16 }}>
+      <View style={{ marginBottom: 18 }}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={{ paddingLeft: 20 }}
-          contentContainerStyle={{ paddingRight: 20 }}
+          contentContainerStyle={{ paddingRight: 20, gap: 10 }}
         >
           {[
-            { icon: "send", label: "Send" },
-            { icon: "credit-card", label: "Card" },
+            {
+              icon: "plus-circle",
+              label: "Create",
+              action: navigateToCreateScreen,
+            },
             { icon: "qrcode-scan", label: "Scan", action: navigateToOcrScreen },
-            { icon: "swap-horizontal", label: "Exchange" },
-            { icon: "dots-horizontal", label: "More" },
           ].map((item, index) => (
-            <View key={index} style={{ marginRight: 16, alignItems: "center" }}>
-              <View
-                style={{
-                  backgroundColor: "#ffffff",
-                  padding: 16,
-                  borderRadius: 20,
-                  marginBottom: 8,
-                  width: 60,
-                  height: 60,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Icon
-                  name={item?.icon}
-                  size={24}
-                  color="#145da0"
-                  onPress={item?.action}
-                />
-              </View>
-              <Text style={{ color: "#ffffff", fontSize: 12 }}>
-                {item?.label}
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 16,
+                backgroundColor: "#ffffff",
+                borderRadius: 10,
+                width: 180,
+              }}
+              onPress={item.action}
+              key={index}
+            >
+              <Icon name={item.icon} size={24} color="#145da0" />
+
+              <Text style={{ fontSize: 16, color: "#145da0", marginLeft: 8 }}>
+                {item.label}
               </Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>

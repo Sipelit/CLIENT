@@ -1,9 +1,10 @@
-import { View } from "react-native";
+import { useNavigation } from "@react-navigation/core";
+import { Touchable, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-export default function TransactionCard(props) {
-  const item = props.item;
+export default function TransactionCard({ item, navigation }) {
+  const navigate = useNavigation().navigate;
 
   const createdAt = item?.createdAt;
   const formattedDate = createdAt
@@ -15,8 +16,23 @@ export default function TransactionCard(props) {
       }).format(new Date(createdAt))
     : "";
 
+  const categoryIcons = {
+    Shopping: "shopping",
+    Food: "food",
+    Transport: "train",
+    Healthcare: "medical-bag",
+    Entertainment: "gamepad-variant",
+    Other: "dots-horizontal-circle",
+  };
+
+  const handlePress = () => {
+    navigate("ReceiptScreen", {
+      transactionId: item._id,
+    });
+  };
+
   return (
-    <View
+    <TouchableOpacity
       style={{
         backgroundColor: "#ffffff",
         borderRadius: 16,
@@ -25,6 +41,7 @@ export default function TransactionCard(props) {
         flexDirection: "row",
         alignItems: "center",
       }}
+      onPress={handlePress}
     >
       <View
         style={{
@@ -34,7 +51,11 @@ export default function TransactionCard(props) {
           marginRight: 16,
         }}
       >
-        <Icon name={"coffee"} size={24} color={"#10B981"} />
+        <Icon
+          name={categoryIcons[item.category] || "dots-horizontal-circle"}
+          size={24}
+          color={"#10B981"}
+        />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={{ color: "#051d40", fontSize: 16, fontWeight: "500" }}>
@@ -54,6 +75,6 @@ export default function TransactionCard(props) {
           currency: "IDR",
         }).format(item.totalPrice)}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 }

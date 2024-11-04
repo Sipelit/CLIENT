@@ -31,33 +31,33 @@ const Stack = createNativeStackNavigator();
 
 function BottomTab() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen
+    <Stack.Navigator>
+      <Stack.Screen
         name="HomeScreen"
         component={HomeScreen}
         options={{ headerShown: false }}
       />
-      <Tab.Screen
+      <Stack.Screen
         name="CreateTransactionScreen"
         component={CreateTransactionScreen}
         options={{ headerShown: false }}
       />
-      <Tab.Screen
+      <Stack.Screen
         name="AssignPeopleScreen"
         component={AssignPeopleScreen}
         options={{ headerShown: false }}
       />
-      <Tab.Screen
+      <Stack.Screen
         name="ReceiptScreen"
         component={ReceiptScreen}
         options={{ headerShown: false }}
       />
-      <Tab.Screen
+      <Stack.Screen
         name="OCRScreen"
         component={OcrScreen}
         options={{ headerShown: false }}
       />
-    </Tab.Navigator>
+    </Stack.Navigator>
   );
 }
 

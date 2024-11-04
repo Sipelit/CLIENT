@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client";
 import { AuthContext } from "../contexts/authContext";
 import React, { useContext, useEffect, useState } from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Alert, TouchableOpacity } from "react-native";
 import {
   Text,
   TextInput,
@@ -16,7 +16,7 @@ import {
   getTransactions,
 } from "../apollo/transactionQuery";
 
-export function CreateTransactionScreen({ navigation }) {
+export function CreateTransactionScreen({ ocrResult, navigation }) {
   const { currentUser } = useContext(AuthContext);
   const [
     createNewTransaction,
@@ -36,6 +36,16 @@ export function CreateTransactionScreen({ navigation }) {
     totalPrice: 0,
     currentUser: currentUser._id,
   });
+
+  if (ocrResult) {
+    let items = ocrResult.items.map((item) => ({
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      totalPrice: item.price * item.quantity,
+    }));
+    setTransaction((prev) => ({ ...prev, items }));
+  }
 
   const [itemInput, setItemInput] = useState({
     name: "",
@@ -105,7 +115,7 @@ export function CreateTransactionScreen({ navigation }) {
         id: data.createTransaction._id,
       });
     } catch (error) {
-      console.error("Error creating transaction:", error);
+      Alert.alert("Error", error.message);
     }
   };
 
@@ -175,6 +185,27 @@ export function CreateTransactionScreen({ navigation }) {
               underlineColor="#145da0"
               activeUnderlineColor="#145da0"
             />
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 12,
+                backgroundColor: "#145da0",
+                borderRadius: 10,
+                marginTop: 16,
+                width: "full",
+              }}
+              onPress={() => {
+                navigation.navigate("OCRScreen");
+              }}
+            >
+              <Icon name="qrcode-scan" size={24} color="#ffffff" />
+
+              <Text style={{ fontSize: 16, color: "#ffffff", marginLeft: 8 }}>
+                Scan
+              </Text>
+            </TouchableOpacity>
           </Surface>
         </View>
 

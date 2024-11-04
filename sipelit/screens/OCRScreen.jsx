@@ -4,7 +4,7 @@ import { Button, Text, Surface } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 
-const OcrScreen = () => {
+const OcrScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
   const [ocrResult, setOcrResult] = useState("");
 
@@ -90,6 +90,9 @@ const OcrScreen = () => {
         Alert.alert("No text detected in the image.");
       }
 
+      navigation.navigate("CreateTransactionScreen", {
+        ocrResult: ocrResult,
+      })
       console.log(ocrResult);
     } catch (error) {
       console.error(error);
@@ -99,6 +102,41 @@ const OcrScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#145da0" }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          padding: 4,
+          marginTop: 28,
+          marginBottom: 12,
+        }}
+      >
+        <Button
+          icon="keyboard-backspace"
+          mode="contained"
+          onPress={() => navigation.goBack()}
+          style={{
+            backgroundColor: "transparent",
+            elevation: 0,
+          }}
+          labelStyle={{
+            color: "#F3F4F6",
+          }}
+        >
+          Back
+        </Button>
+        <Text
+          style={{
+            color: "#F3F4F6",
+            fontSize: 26,
+            fontWeight: "700",
+            flex: 1,
+            marginLeft: 78,
+          }}
+        >
+          Scan
+        </Text>
+      </View>
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: 24,

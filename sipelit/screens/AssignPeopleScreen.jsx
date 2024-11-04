@@ -17,8 +17,8 @@ import { AuthContext } from "../contexts/authContext";
 
 export function AssignPeopleScreen({ route, navigation }) {
   const { currentUser } = useContext(AuthContext);
-  // const { id } = route.params;
-  const id = "67285235d0683aad2fb2d258";
+  const { id } = route.params;
+  // const id = "67285235d0683aad2fb2d258";
   const [createUserTransaction] = useMutation(CREATE_USER_TRANSACTION, {
     refetchQueries: [
       { query: getTransactions, variables: { userId: currentUser.id } },
@@ -162,8 +162,6 @@ export function AssignPeopleScreen({ route, navigation }) {
       totalPrice: calculatePersonTotal(person.id),
       userId: person.id.toString(),
     }));
-
-    console.log("UserTransactions:", userTransactions);
 
     const totalAssignedQuantity = itemAssignments.length;
     const totalOriginalQuantity = transactionItems.items.reduce(

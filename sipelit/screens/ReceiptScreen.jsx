@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { View, ScrollView, Image } from "react-native";
 import { Text, Surface, Button } from "react-native-paper";
 import { captureRef } from "react-native-view-shot";
@@ -8,77 +8,30 @@ import { useQuery } from "@apollo/client";
 import { getTransactionById } from "../apollo/transactionQuery";
 
 export function ReceiptScreen({ navigation, route }) {
-  const mockData = {
-    merchantName: "Hacktiv8",
-    date: new Date(),
-    transactionId: "TRX-001",
-    users: {
-      1: {
-        name: "Bryan",
-        items: {
-          "Kopi susu": {
-            name: "Kopi susu",
-            price: 8000,
-            quantity: 2,
-          },
-        },
-        totalPrice: 17600,
-        userId: "1",
-      },
-      2: {
-        name: "Kelvin",
-        items: {
-          "Kopi susu": {
-            name: "Kopi susu",
-            price: 8000,
-            quantity: 1,
-          },
-          "Kopi Oatside": {
-            name: "Kopi Oatside",
-            price: 12000,
-            quantity: 1,
-          },
-        },
-        totalPrice: 22000,
-        userId: "2",
-      },
-    },
-    tax: 10,
-    originalTotal: 36000,
-  };
-
-  const transactionId = "67285235d0683aad2fb2d258";
-  // const transactionId = route.params.transactionId;
-  const { data, loading, error, refetch } = useQuery(getTransactionById, {
-    variables: {
-      id: transactionId,
-    },
+  const transactionId = route.params.transactionId;
+  const { data, loading, error } = useQuery(getTransactionById, {
+    variables: { id: transactionId },
   });
 
-  const createdAt = data.getTransactionById?.createdAt;
-  const formattedDate = createdAt
+  if (loading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error: {error.message}</Text>;
+
+  const formattedDate = data?.getTransactionById?.createdAt
     ? new Intl.DateTimeFormat("id-ID", {
         year: "numeric",
         month: "long",
         day: "numeric",
         timeZone: "Asia/Jakarta",
-      }).format(new Date(createdAt))
+      }).format(new Date(data.getTransactionById.createdAt))
     : "";
 
   const imageRef = useRef();
+
   const onSaveImageAsync = async () => {
     try {
-      const localUri = await captureRef(imageRef, {
-        height: 440,
-        quality: 1,
-      });
-
+      const localUri = await captureRef(imageRef, { height: 440, quality: 1 });
       await MediaLibrary.saveToLibraryAsync(localUri);
       await Sharing.shareAsync(localUri);
-
-      // if (localUri) {
-      //   alert("Saved!");
-      // }
     } catch (err) {
       console.log(err);
     }
@@ -86,42 +39,8 @@ export function ReceiptScreen({ navigation, route }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          padding: 4,
-          marginTop: 28,
-          marginBottom: 12,
-        }}
-      >
-        <Button
-          icon="keyboard-backspace"
-          mode="contained"
-          onPress={() => navigation.goBack()}
-          style={{
-            backgroundColor: "transparent",
-            elevation: 0,
-          }}
-          labelStyle={{
-            color: "#F3F4F6",
-          }}
-        >
-          Back
-        </Button>
-        <Text
-          style={{
-            color: "#F3F4F6",
-            fontSize: 26,
-            fontWeight: "700",
-            flex: 1,
-          }}
-        >
-          Create Transaction
-        </Text>
-      </View>
       <ScrollView>
-        <View ref={imageRef} collapsable={false}>
+        <View ref={imageRef} collapsable={false} style={{ marginTop: 36 }}>
           <Surface
             style={{
               backgroundColor: "#ffffff",
@@ -155,120 +74,114 @@ export function ReceiptScreen({ navigation, route }) {
             </View>
 
             {/* Split Details */}
-            {data.getTransactionById &&
-              data.getTransactionById?.userTransaction?.map((user) => (
-                <View key={user.userId} style={{ marginBottom: 24 }}>
-                  <Text
+            {data.getTransactionById?.userTransaction?.map((user) => (
+              <View key={user.userId} style={{ marginBottom: 24 }}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "600",
+                    color: "#145da0",
+                    marginBottom: 8,
+                  }}
+                >
+                  {user.name}'s Portion
+                </Text>
+
+                {/* Items */}
+                {Object.values(user.items).map((item) => (
+                  <View
+                    key={item.name}
                     style={{
-                      fontSize: 18,
-                      fontWeight: "600",
-                      color: "#145da0",
-                      marginBottom: 8,
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      marginBottom: 4,
                     }}
                   >
-                    {user.name}'s Portion
-                  </Text>
-
-                  {/* Items */}
-                  {Object.values(user.items).map((item) => (
-                    <View
-                      key={item.name}
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        marginBottom: 4,
-                      }}
-                    >
-                      <View style={{ flex: 1 }}>
-                        <Text style={{ color: "#374151" }}>
-                          {item.name} x{item.quantity}
-                        </Text>
-                      </View>
+                    <View style={{ flex: 1 }}>
                       <Text style={{ color: "#374151" }}>
-                        {Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                        }).format(item.price * item.quantity)}
+                        {item.name} x{item.quantity}
                       </Text>
                     </View>
-                  ))}
+                    <Text style={{ color: "#374151" }}>
+                      {Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                      }).format(item.price * item.quantity)}
+                    </Text>
+                  </View>
+                ))}
 
-                  {/* Subtotal */}
+                {/* Subtotal, Tax, Total */}
+                <View
+                  style={{
+                    borderTopWidth: 1,
+                    borderColor: "#e5e7eb",
+                    marginTop: 8,
+                    paddingTop: 8,
+                  }}
+                >
                   <View
                     style={{
-                      borderTopWidth: 1,
-                      borderColor: "#e5e7eb",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Text style={{ color: "#6b7280" }}>Subtotal</Text>
+                    <Text style={{ color: "#6b7280" }}>
+                      {Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                      }).format(user.totalPrice)}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      marginTop: 4,
+                    }}
+                  >
+                    <Text style={{ color: "#6b7280" }}>
+                      Tax ({data.getTransactionById?.tax}%)
+                    </Text>
+                    <Text style={{ color: "#6b7280" }}>
+                      {Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                      }).format(
+                        user.totalPrice -
+                          user.totalPrice /
+                            (1 + data.getTransactionById?.tax / 100)
+                      )}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
                       marginTop: 8,
+                      borderTopWidth: 1,
+                      borderStyle: "dashed",
+                      borderColor: "#cbd5e1",
                       paddingTop: 8,
                     }}
                   >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Text style={{ color: "#6b7280" }}>Subtotal</Text>
-                      <Text style={{ color: "#6b7280" }}>
-                        {Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                        }).format(user.totalPrice)}
-                      </Text>
-                    </View>
-
-                    {/* Tax */}
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        marginTop: 4,
-                      }}
-                    >
-                      <Text style={{ color: "#6b7280" }}>
-                        Tax ({data.getTransactionById?.tax}%)
-                      </Text>
-                      <Text style={{ color: "#6b7280" }}>
-                        {Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                        }).format(
-                          user.totalPrice -
-                            user.totalPrice /
-                              (1 + data.getTransactionById?.tax / 100)
-                        )}
-                      </Text>
-                    </View>
-
-                    {/* Total */}
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        marginTop: 8,
-                        borderTopWidth: 1,
-                        borderStyle: "dashed",
-                        borderColor: "#cbd5e1",
-                        paddingTop: 8,
-                      }}
-                    >
-                      <Text style={{ fontWeight: "600", color: "#145da0" }}>
-                        Total
-                      </Text>
-                      <Text style={{ fontWeight: "600", color: "#145da0" }}>
-                        {Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                        }).format(
-                          user.totalPrice +
-                            (user.totalPrice * data.getTransactionById?.tax) /
-                              100
-                        )}
-                      </Text>
-                    </View>
+                    <Text style={{ fontWeight: "600", color: "#145da0" }}>
+                      Total
+                    </Text>
+                    <Text style={{ fontWeight: "600", color: "#145da0" }}>
+                      {Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                      }).format(
+                        user.totalPrice +
+                          (user.totalPrice * data.getTransactionById?.tax) / 100
+                      )}
+                    </Text>
                   </View>
                 </View>
-              ))}
+              </View>
+            ))}
 
             {/* Final Total */}
             <View
@@ -323,10 +236,7 @@ export function ReceiptScreen({ navigation, route }) {
           <Button
             mode="contained"
             onPress={onSaveImageAsync}
-            style={{
-              flex: 1,
-              backgroundColor: "#56aeff",
-            }}
+            style={{ flex: 1, backgroundColor: "#56aeff" }}
           >
             Share
           </Button>
@@ -334,10 +244,7 @@ export function ReceiptScreen({ navigation, route }) {
             mode="outlined"
             onPress={() => navigation.goBack()}
             textColor="#ffff"
-            style={{
-              flex: 1,
-              borderColor: "#ffff",
-            }}
+            style={{ flex: 1, borderColor: "#ffff" }}
           >
             Back
           </Button>
