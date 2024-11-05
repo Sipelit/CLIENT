@@ -13,7 +13,7 @@ export function RegisterScreen({ navigation }) {
     password: "",
   });
 
-  const [Register, { data, loading }] = useMutation(register);
+  const [Register, { loading }] = useMutation(register);
 
   const handleSignUp = async () => {
     try {
@@ -25,7 +25,6 @@ export function RegisterScreen({ navigation }) {
           password: form.password,
         },
       });
-      Alert.alert("Success", data.register);
       navigation.navigate("LoginScreen");
     } catch (error) {
       Alert.alert("Error", error.message);

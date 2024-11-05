@@ -18,7 +18,6 @@ import { AuthContext } from "../contexts/authContext";
 export function AssignPeopleScreen({ route, navigation }) {
   const { currentUser } = useContext(AuthContext);
   const { id } = route.params;
-  // const id = "67285235d0683aad2fb2d258";
   const [createUserTransaction, { loading: createLoading }] = useMutation(
     CREATE_USER_TRANSACTION,
     {

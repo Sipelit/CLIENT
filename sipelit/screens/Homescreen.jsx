@@ -22,6 +22,7 @@ import * as SecureStore from "expo-secure-store";
 import * as MediaLibrary from "expo-media-library";
 import { AuthContext } from "../contexts/authContext";
 import { getUserById } from "../apollo/userQuery";
+import FAB from "../components/FAB";
 
 export function HomeScreen({ navigation }) {
   const [input, setInput] = useState("");
@@ -64,6 +65,10 @@ export function HomeScreen({ navigation }) {
   useEffect(() => {
     calculateTotal();
   }, []);
+
+  useEffect(() => {
+    refetch();
+  }, [data]);
 
   useEffect(() => {
     fetchData({
@@ -264,7 +269,7 @@ export function HomeScreen({ navigation }) {
                   backgroundColor: "#E6F0FF",
                   borderRadius: 12,
                   padding: 8,
-                  marginRight: 6,
+                  marginRight: 7,
                 }}
               >
                 <Icon name={item.icon} size={22} color="#145da0" />
@@ -288,7 +293,7 @@ export function HomeScreen({ navigation }) {
                   }}
                   numberOfLines={1}
                 >
-                  {index === 0 ? "Split bills easily" : "Scan or import"}
+                  {index === 0 ? "Split bills easily" : "Scan or import image"}
                 </Text>
               </View>
             </TouchableOpacity>

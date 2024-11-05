@@ -8,7 +8,7 @@ import { generateOCR } from "../apollo/transactionQuery";
 
 const OcrScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
-  const [generate] = useLazyQuery(generateOCR);
+  const [generate, { loading }] = useLazyQuery(generateOCR);
 
   useEffect(() => {
     const requestPermissions = async () => {
@@ -136,7 +136,7 @@ const OcrScreen = ({ navigation }) => {
             fontSize: 26,
             fontWeight: "700",
             flex: 1,
-            marginLeft: 64,
+            marginLeft: 76,
           }}
         >
           Scan
@@ -182,15 +182,38 @@ const OcrScreen = ({ navigation }) => {
           }}
         >
           {imageUri && (
-            <Image
-              source={{ uri: imageUri }}
-              style={{
-                width: "100%",
-                height: 350,
-                marginVertical: 20,
-                borderRadius: 8,
-              }}
-            />
+            <>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: "bold",
+                  color: "red",
+                }}
+              >
+                Warning!
+              </Text>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: "red",
+                  textAlign: "center",
+                  textAlignVertical: "center",
+                }}
+              >
+                Use a clear, high-resolution image for optimal text scanning
+                results.
+              </Text>
+              <Image
+                source={{ uri: imageUri }}
+                style={{
+                  width: "100%",
+                  height: 350,
+                  marginTop: 10,
+                  marginBottom: 20,
+                  borderRadius: 8,
+                }}
+              />
+            </>
           )}
           <View
             style={{
@@ -233,6 +256,8 @@ const OcrScreen = ({ navigation }) => {
           <Button
             mode="contained"
             onPress={performOcr}
+            loading={loading}
+            disabled={loading}
             style={{
               paddingVertical: 6,
               backgroundColor: "#56aeff",

@@ -21,7 +21,6 @@ import { getUserById } from "./apollo/userQuery";
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 
 if (__DEV__) {
-  // Adds messages only in a dev environment
   loadDevMessages();
   loadErrorMessages();
 }
@@ -73,7 +72,6 @@ function AuthStack() {
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(false);
-
   const checkToken = async () => {
     const token = await SecureStore.getItemAsync("access_token");
     if (token) setIsLoggedIn(true);

@@ -102,6 +102,8 @@ export function LoginScreen({ navigation }) {
           <Button
             mode="contained"
             onPress={handleLogin}
+            loading={loading}
+            disabled={loading}
             style={{
               paddingVertical: 6,
               backgroundColor: "#145da0",
@@ -126,8 +128,6 @@ export function LoginScreen({ navigation }) {
           <Button
             mode="text"
             onPress={() => navigation.navigate("RegisterScreen")}
-            loading={loading}
-            disabled={loading}
             style={{
               marginLeft: -8,
             }}
