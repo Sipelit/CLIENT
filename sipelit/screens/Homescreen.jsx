@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext, act } from "react";
-import {
-  View,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-} from "react-native";
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useCallback,
+} from "react";
+import { View, ScrollView, Image, TouchableOpacity } from "react-native";
 import {
   Avatar,
   Card,
@@ -22,12 +21,12 @@ import * as SecureStore from "expo-secure-store";
 import * as MediaLibrary from "expo-media-library";
 import { AuthContext } from "../contexts/authContext";
 import { getUserById } from "../apollo/userQuery";
-import FAB from "../components/FAB";
+import { useFocusEffect } from "@react-navigation/core";
 
 export function HomeScreen({ navigation }) {
   const [input, setInput] = useState("");
 
-  const { setIsLoggedIn, currentUser } = useContext(AuthContext);
+  const { isLoggedIn, setIsLoggedIn, currentUser } = useContext(AuthContext);
   const [fetchData, { data, error, loading, refetch }] = useLazyQuery(
     getTransactions,
     {
@@ -62,13 +61,12 @@ export function HomeScreen({ navigation }) {
     navigation.navigate("LoginScreen");
   };
 
-  useEffect(() => {
-    calculateTotal();
-  }, []);
-
-  useEffect(() => {
-    refetch();
-  }, [data]);
+  useFocusEffect(
+    useCallback(() => {
+      calculateTotal();
+      refetch();
+    }, [data])
+  );
 
   useEffect(() => {
     fetchData({
@@ -77,7 +75,7 @@ export function HomeScreen({ navigation }) {
         name: input,
       },
     });
-  }, [input]);
+  }, [input, isLoggedIn, data]);
 
   useEffect(() => {
     if (status === null) {
@@ -145,11 +143,8 @@ export function HomeScreen({ navigation }) {
             </Text>
           </View>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <TouchableOpacity
-              onPress={handleLogout}
-              style={{ marginRight: 16 }}
-            >
-              <Icon name="exit-to-app" size={28} color="#ED2939" />
+            <TouchableOpacity onPress={handleLogout} style={{ marginRight: 8 }}>
+              <Icon name="exit-to-app" size={26} color="#bd2024" />
             </TouchableOpacity>
             <Avatar.Image
               size={40}
@@ -310,8 +305,8 @@ export function HomeScreen({ navigation }) {
               elevation: 0,
             }}
             inputStyle={{ color: "#145da0" }}
-            iconColor="#9CA3AF"
-            placeholderTextColor="#9CA3AF"
+            iconColor="#145da0"
+            placeholderTextColor="#145da0"
             onChangeText={(text) => setInput(text)}
           />
         </View>

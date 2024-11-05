@@ -100,7 +100,6 @@ const OcrScreen = ({ navigation }) => {
         ocrResult: res.data.gemini,
       });
     } catch (error) {
-      console.error(error);
       Alert.alert("An error occurred while processing the image.");
     }
   };
