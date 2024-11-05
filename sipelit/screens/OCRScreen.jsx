@@ -3,10 +3,12 @@ import { SafeAreaView, View, Image, Alert, ScrollView } from "react-native";
 import { Button, Text, Surface } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import { useLazyQuery } from "@apollo/client";
+import { generateOCR } from "../apollo/transactionQuery";
 
 const OcrScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
-  const [ocrResult, setOcrResult] = useState("");
+  const [generate] = useLazyQuery(generateOCR);
 
   useEffect(() => {
     const requestPermissions = async () => {
@@ -82,18 +84,21 @@ const OcrScreen = ({ navigation }) => {
 
       const data = await response.json();
 
+      let ocrText = "";
+
       if (data.responses && data.responses[0].fullTextAnnotation) {
-        setOcrResult(data.responses[0].fullTextAnnotation.text);
+        ocrText = data.responses[0].fullTextAnnotation.text;
       } else if (data.responses && data.responses[0].textAnnotations) {
-        setOcrResult(data.responses[0].textAnnotations[0].description);
+        ocrText = data.responses[0].textAnnotations[0].description;
       } else {
         Alert.alert("No text detected in the image.");
       }
 
+      const res = await generate({ variables: { input: ocrText } });
+
       navigation.navigate("CreateTransactionScreen", {
-        ocrResult: ocrResult,
-      })
-      console.log(ocrResult);
+        ocrResult: res.data.gemini,
+      });
     } catch (error) {
       console.error(error);
       Alert.alert("An error occurred while processing the image.");
@@ -131,7 +136,7 @@ const OcrScreen = ({ navigation }) => {
             fontSize: 26,
             fontWeight: "700",
             flex: 1,
-            marginLeft: 78,
+            marginLeft: 64,
           }}
         >
           Scan
@@ -141,7 +146,7 @@ const OcrScreen = ({ navigation }) => {
         contentContainerStyle={{
           paddingHorizontal: 24,
           paddingVertical: 16,
-          marginTop: 80,
+          marginTop: 16,
         }}
       >
         <View style={{ alignItems: "center", marginBottom: 20 }}>

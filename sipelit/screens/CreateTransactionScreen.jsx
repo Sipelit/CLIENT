@@ -16,7 +16,8 @@ import {
   getTransactions,
 } from "../apollo/transactionQuery";
 
-export function CreateTransactionScreen({ ocrResult, navigation }) {
+export function CreateTransactionScreen({ route, navigation }) {
+  const { ocrResult } = route.params??{};
   const { currentUser } = useContext(AuthContext);
   const [
     createNewTransaction,
@@ -37,15 +38,17 @@ export function CreateTransactionScreen({ ocrResult, navigation }) {
     currentUser: currentUser._id,
   });
 
-  if (ocrResult) {
-    let items = ocrResult.items.map((item) => ({
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      totalPrice: item.price * item.quantity,
-    }));
-    setTransaction((prev) => ({ ...prev, items }));
-  }
+  useEffect(() => {
+    if (ocrResult) {
+      let items = ocrResult?.items?.map((item) => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        totalPrice: item.price * item.quantity,
+      }));
+      setTransaction((prev) => ({ ...prev, items }));
+    }
+  }, []);
 
   const [itemInput, setItemInput] = useState({
     name: "",
@@ -130,7 +133,7 @@ export function CreateTransactionScreen({ ocrResult, navigation }) {
           flexDirection: "row",
           alignItems: "center",
           padding: 4,
-          marginTop: 28,
+          marginTop: 32,
           marginBottom: 12,
         }}
       >
@@ -154,6 +157,7 @@ export function CreateTransactionScreen({ ocrResult, navigation }) {
             fontSize: 26,
             fontWeight: "700",
             flex: 1,
+            marginLeft: -16,
           }}
         >
           Create Transaction

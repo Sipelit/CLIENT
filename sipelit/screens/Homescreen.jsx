@@ -1,5 +1,11 @@
 import React, { useEffect, useState, useContext, act } from "react";
-import { View, ScrollView, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
 import {
   Avatar,
   Card,
@@ -10,20 +16,24 @@ import {
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import TransactionCard from "../components/TransactionCard";
-import { useQuery } from "@apollo/client";
-import { getTransactions } from "../apollo/transactionQuery";
+import { useLazyQuery, useQuery } from "@apollo/client";
+import { getTransactions, searchByName } from "../apollo/transactionQuery";
 import * as SecureStore from "expo-secure-store";
 import * as MediaLibrary from "expo-media-library";
 import { AuthContext } from "../contexts/authContext";
 import { getUserById } from "../apollo/userQuery";
 
 export function HomeScreen({ navigation }) {
+  const [input, setInput] = useState("");
+
   const { setIsLoggedIn, currentUser } = useContext(AuthContext);
-  const { data, error, loading, refetch } = useQuery(getTransactions, {
-    variables: {
-      userId: currentUser._id,
-    },
-  });
+  const [fetchData, { data, error, loading, refetch }] = useLazyQuery(
+    getTransactions,
+    {
+      fetchPolicy: "network-only",
+      nextFetchPolicy: "network-only",
+    }
+  );
 
   const { data: user } = useQuery(getUserById, {
     variables: {
@@ -53,8 +63,16 @@ export function HomeScreen({ navigation }) {
 
   useEffect(() => {
     calculateTotal();
-    refetch();
-  }, [data]);
+  }, []);
+
+  useEffect(() => {
+    fetchData({
+      variables: {
+        userId: currentUser._id,
+        name: input,
+      },
+    });
+  }, [input]);
 
   useEffect(() => {
     if (status === null) {
@@ -70,6 +88,25 @@ export function HomeScreen({ navigation }) {
     navigation.navigate("OCRScreen");
   };
 
+  const formatCurrency = (amount) => {
+    const formatted = Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(amount);
+
+    const [main, cents] = formatted.split(",");
+
+    return (
+      <Text>
+        <Text style={{ color: "#145da0", fontSize: 36, fontWeight: "bold" }}>
+          {main}
+        </Text>
+        <Text style={{ color: "#145da0", fontSize: 26, fontWeight: "bold" }}>
+          {cents ? `,${cents}` : ""}
+        </Text>
+      </Text>
+    );
+  };
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
       <View
@@ -120,7 +157,6 @@ export function HomeScreen({ navigation }) {
           </View>
         </View>
       </View>
-
       <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
         <Card
           style={{
@@ -157,7 +193,7 @@ export function HomeScreen({ navigation }) {
                 }}
               >
                 <Text style={{ color: "#ffffff", fontSize: 12 }}>
-                  070024358 • BCA Card
+                  Quick and Easy Bill Sharing
                 </Text>
               </Surface>
             </View>
@@ -167,56 +203,98 @@ export function HomeScreen({ navigation }) {
             <Text style={{ color: "#145da0", fontSize: 16 }}>
               Total Transactions
             </Text>
-            <Text
-              style={{ color: "#145da0", fontSize: 36, fontWeight: "bold" }}
-            >
-              {Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-              }).format(total)}
-            </Text>
+            {formatCurrency(total)}
           </View>
         </Card>
       </View>
 
-      <View style={{ marginBottom: 18 }}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ paddingLeft: 20 }}
-          contentContainerStyle={{ paddingRight: 20, gap: 10 }}
+      <View style={{ marginBottom: 24 }}>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "600",
+            color: "#F3F4F6",
+            marginBottom: 12,
+            paddingHorizontal: 20,
+          }}
+        >
+          Quick Actions
+        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            paddingHorizontal: 20,
+            gap: 12,
+          }}
         >
           {[
             {
               icon: "plus-circle",
-              label: "Create",
+              label: "Create Transaction",
               action: navigateToCreateScreen,
             },
-            { icon: "qrcode-scan", label: "Scan", action: navigateToOcrScreen },
+            {
+              icon: "qrcode-scan",
+              label: "Scan Receipt",
+              action: navigateToOcrScreen,
+            },
           ].map((item, index) => (
             <TouchableOpacity
               style={{
+                flex: 1,
                 flexDirection: "row",
-                justifyContent: "center",
                 alignItems: "center",
                 padding: 16,
                 backgroundColor: "#ffffff",
-                borderRadius: 10,
-                width: 180,
+                borderRadius: 16,
+                shadowColor: "#000",
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.23,
+                shadowRadius: 2.62,
+                elevation: 4,
               }}
               onPress={item.action}
               key={index}
             >
-              <Icon name={item.icon} size={24} color="#145da0" />
-
-              <Text style={{ fontSize: 16, color: "#145da0", marginLeft: 8 }}>
-                {item.label}
-              </Text>
+              <View
+                style={{
+                  backgroundColor: "#E6F0FF",
+                  borderRadius: 12,
+                  padding: 8,
+                  marginRight: 6,
+                }}
+              >
+                <Icon name={item.icon} size={22} color="#145da0" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: "600",
+                    color: "#145da0",
+                  }}
+                  numberOfLines={1}
+                >
+                  {item.label}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 10,
+                    color: "#6B7280",
+                    marginTop: 4,
+                  }}
+                  numberOfLines={1}
+                >
+                  {index === 0 ? "Split bills easily" : "Scan or import"}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
       </View>
-
       <View style={{ flex: 1 }}>
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Searchbar
@@ -229,6 +307,7 @@ export function HomeScreen({ navigation }) {
             inputStyle={{ color: "#145da0" }}
             iconColor="#9CA3AF"
             placeholderTextColor="#9CA3AF"
+            onChangeText={(text) => setInput(text)}
           />
         </View>
 

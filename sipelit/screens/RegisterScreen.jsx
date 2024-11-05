@@ -13,7 +13,7 @@ export function RegisterScreen({ navigation }) {
     password: "",
   });
 
-  const [Register, { data }] = useMutation(register);
+  const [Register, { data, loading }] = useMutation(register);
 
   const handleSignUp = async () => {
     try {
@@ -124,6 +124,8 @@ export function RegisterScreen({ navigation }) {
             <Button
               mode="contained"
               onPress={handleSignUp}
+              loading={loading}
+              disabled={loading}
               style={{
                 paddingVertical: 6,
                 backgroundColor: "#145da0",

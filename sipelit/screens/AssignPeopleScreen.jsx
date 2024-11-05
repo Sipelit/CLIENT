@@ -19,12 +19,15 @@ export function AssignPeopleScreen({ route, navigation }) {
   const { currentUser } = useContext(AuthContext);
   const { id } = route.params;
   // const id = "67285235d0683aad2fb2d258";
-  const [createUserTransaction] = useMutation(CREATE_USER_TRANSACTION, {
-    refetchQueries: [
-      { query: getTransactions, variables: { userId: currentUser.id } },
-    ],
-    refetchQueries: [{ query: getTransactionById, variables: { id } }],
-  });
+  const [createUserTransaction, { loading: createLoading }] = useMutation(
+    CREATE_USER_TRANSACTION,
+    {
+      refetchQueries: [
+        { query: getTransactions, variables: { userId: currentUser.id } },
+      ],
+      refetchQueries: [{ query: getTransactionById, variables: { id } }],
+    }
+  );
 
   const { data, loading, error } = useQuery(getTransactionById, {
     variables: {
@@ -220,9 +223,10 @@ export function AssignPeopleScreen({ route, navigation }) {
             fontSize: 26,
             fontWeight: "700",
             flex: 1,
+            marginLeft: 12,
           }}
         >
-          Split Bill - {transactionItems.name}
+          Assign People
         </Text>
       </View>
 
@@ -255,6 +259,7 @@ export function AssignPeopleScreen({ route, navigation }) {
                 style={{
                   backgroundColor: "#145da0",
                   borderRadius: 8,
+                  justifyContent: "center",
                 }}
               >
                 Add
@@ -340,10 +345,20 @@ export function AssignPeopleScreen({ route, navigation }) {
                       mode="outlined"
                       onPress={() => addItemAssignment(itemIndex, person.id)}
                       style={{
-                        borderColor: "#145da0",
+                        borderColor:
+                          remainingQuantities[itemIndex] === 0
+                            ? "#D3D3D3"
+                            : "#145da0",
+                        backgroundColor:
+                          remainingQuantities[itemIndex] === 0
+                            ? "#F0F0F0"
+                            : "transparent",
                       }}
                       labelStyle={{
-                        color: "#145da0",
+                        color:
+                          remainingQuantities[itemIndex] === 0
+                            ? "#A9A9A9"
+                            : "#145da0",
                       }}
                       disabled={remainingQuantities[itemIndex] === 0}
                     >
@@ -499,9 +514,7 @@ export function AssignPeopleScreen({ route, navigation }) {
                 {Intl.NumberFormat("id-ID", {
                   style: "currency",
                   currency: "IDR",
-                }).format(
-                  transactionItems.totalPrice * (1 + transactionItems.tax / 100)
-                )}
+                }).format(transactionItems.totalPrice)}
               </Text>
             </View>
           </Surface>
@@ -512,6 +525,8 @@ export function AssignPeopleScreen({ route, navigation }) {
           <Button
             mode="contained"
             onPress={handleConfirmSplit}
+            loading={createLoading}
+            disabled={createLoading}
             style={{
               backgroundColor: "#ffffff",
               padding: 8,

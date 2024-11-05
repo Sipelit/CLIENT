@@ -83,7 +83,7 @@ export default function App() {
 
   useEffect(() => {
     checkToken();
-  }, []);
+  }, [isLoggedIn]);
 
   return (
     <AuthContext.Provider

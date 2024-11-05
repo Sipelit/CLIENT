@@ -13,9 +13,9 @@ export function LoginScreen({ navigation }) {
     password: "",
   });
 
-  const [Login] = useMutation(login);
+  const [Login, { loading }] = useMutation(login);
 
-  const handleLogin = async () => { 
+  const handleLogin = async () => {
     try {
       const { data } = await Login({
         variables: {
@@ -23,7 +23,7 @@ export function LoginScreen({ navigation }) {
           password: form.password,
         },
       });
-      
+
       if (data && data.login && data.login.token) {
         const token = data.login.token;
         await SecureStore.setItemAsync("access_token", token);
@@ -126,6 +126,8 @@ export function LoginScreen({ navigation }) {
           <Button
             mode="text"
             onPress={() => navigation.navigate("RegisterScreen")}
+            loading={loading}
+            disabled={loading}
             style={{
               marginLeft: -8,
             }}

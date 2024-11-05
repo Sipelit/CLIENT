@@ -13,6 +13,8 @@ export function ReceiptScreen({ navigation, route }) {
     variables: { id: transactionId },
   });
 
+  const imageRef = useRef();
+
   if (loading) return <Text>Loading...</Text>;
   if (error) return <Text>Error: {error.message}</Text>;
 
@@ -24,8 +26,6 @@ export function ReceiptScreen({ navigation, route }) {
         timeZone: "Asia/Jakarta",
       }).format(new Date(data.getTransactionById.createdAt))
     : "";
-
-  const imageRef = useRef();
 
   const onSaveImageAsync = async () => {
     try {
@@ -39,8 +39,43 @@ export function ReceiptScreen({ navigation, route }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#145da0" }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          padding: 4,
+          marginTop: 32,
+          marginBottom: 12,
+        }}
+      >
+        <Button
+          icon="keyboard-backspace"
+          mode="contained"
+          onPress={() => navigation.goBack()}
+          style={{
+            backgroundColor: "transparent",
+            elevation: 0,
+          }}
+          labelStyle={{
+            color: "#F3F4F6",
+          }}
+        >
+          Back
+        </Button>
+        <Text
+          style={{
+            color: "#F3F4F6",
+            fontSize: 26,
+            fontWeight: "700",
+            flex: 1,
+            marginLeft: 26,
+          }}
+        >
+          Split Result
+        </Text>
+      </View>
       <ScrollView>
-        <View ref={imageRef} collapsable={false} style={{ marginTop: 36 }}>
+        <View ref={imageRef} collapsable={false} style={{ marginTop: 4 }}>
           <Surface
             style={{
               backgroundColor: "#ffffff",
@@ -84,7 +119,7 @@ export function ReceiptScreen({ navigation, route }) {
                     marginBottom: 8,
                   }}
                 >
-                  {user.name}'s Portion
+                  {user.name}'s
                 </Text>
 
                 {/* Items */}
@@ -131,7 +166,10 @@ export function ReceiptScreen({ navigation, route }) {
                       {Intl.NumberFormat("id-ID", {
                         style: "currency",
                         currency: "IDR",
-                      }).format(user.totalPrice)}
+                      }).format(
+                        user.totalPrice /
+                          (1 + data.getTransactionById?.tax / 100)
+                      )}
                     </Text>
                   </View>
                   <View
@@ -173,10 +211,7 @@ export function ReceiptScreen({ navigation, route }) {
                       {Intl.NumberFormat("id-ID", {
                         style: "currency",
                         currency: "IDR",
-                      }).format(
-                        user.totalPrice +
-                          (user.totalPrice * data.getTransactionById?.tax) / 100
-                      )}
+                      }).format(user.totalPrice)}
                     </Text>
                   </View>
                 </View>
@@ -206,10 +241,7 @@ export function ReceiptScreen({ navigation, route }) {
                   {Intl.NumberFormat("id-ID", {
                     style: "currency",
                     currency: "IDR",
-                  }).format(
-                    data.getTransactionById?.totalPrice *
-                      (1 + data.getTransactionById?.tax / 100)
-                  )}
+                  }).format(data.getTransactionById?.totalPrice)}
                 </Text>
               </View>
             </View>
@@ -242,7 +274,7 @@ export function ReceiptScreen({ navigation, route }) {
           </Button>
           <Button
             mode="outlined"
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.popToTop()}
             textColor="#ffff"
             style={{ flex: 1, borderColor: "#ffff" }}
           >
